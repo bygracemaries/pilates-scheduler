@@ -348,12 +348,8 @@
             <input type="text" id="r_name" required>
           </div>
           <div class="field">
-            <label>Email</label>
-            <input type="email" id="r_email" required>
-          </div>
-          <div class="field">
-            <label>Phone (optional)</label>
-            <input type="tel" id="r_phone">
+            <label>Email or Phone</label>
+            <input type="text" id="r_contact" placeholder="Either one is fine" required>
           </div>
         </div>
 
@@ -639,8 +635,7 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
   const form = this;
   const req = {
     clientName: document.getElementById('r_name').value.trim(),
-    clientEmail: document.getElementById('r_email').value.trim(),
-    clientPhone: document.getElementById('r_phone').value.trim(),
+    clientContact: document.getElementById('r_contact').value.trim(),
     date: document.getElementById('r_date').value,
     time: document.getElementById('r_time').value,
     duration: parseInt(document.getElementById('r_duration').value, 10),
@@ -742,7 +737,7 @@ function renderRequestList(){
     const conflicts = r.status === 'pending' ? findConflicts(r, list) : [];
     const equipTags = r.equipment.map(e=>'<span class="tag">'+EQUIP_LABELS[e]+'</span>').join('');
     const dateLabel = formatDate(r.date) + ' at ' + formatTime(r.time) + ' &middot; ' + r.duration + ' min';
-    const contact = [r.clientEmail, r.clientPhone].filter(Boolean).join(' / ');
+    const contact = r.clientContact || [r.clientEmail, r.clientPhone].filter(Boolean).join(' / ');
 
     let actions = '';
     if(r.status === 'pending'){
