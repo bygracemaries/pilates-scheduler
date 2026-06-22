@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pilates Session Scheduler</title>
+<style>
+  :root{
+    --sage:#B9D3E9;
+    --sage-dark:#3F6483;
+    --blush:#e8c4c4;
+    --cream:#faf6f1;
+    --ink:#3a3a35;
+    --muted:#8a8a82;
+    --line:#e3ddd3;
+    --pending:#d8a948;
+    --confirmed:#6a9c7a;
+    --declined:#c46a6a;
+    --white:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+  }
+  header{
+    background:var(--sage);
+    color:#fff;
+    padding:24px 28px 0;
+  }
+  header h1{
+    margin:0 0 4px;
+    font-size:22px;
+    font-weight:600;
+  }
+  header p{
+    margin:0 0 18px;
+    font-size:13px;
+    opacity:.9;
+  }
+  nav{
+    display:flex;
+    gap:4px;
+  }
+  nav button{
+    background:rgba(255,255,255,.15);
+    border:none;
+    color:#fff;
+    padding:10px 20px;
+    font-size:14px;
+    cursor:pointer;
+    border-radius:8px 8px 0 0;
+    opacity:.75;
+  }
+  nav button.active{
+    background:var(--cream);
+    color:var(--sage-dark);
+    opacity:1;
+    font-weight:600;
+  }
+  main{
+    max-width:920px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+  .view{display:none;}
+  .view.active{display:block;}
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:22px;
+    margin-bottom:18px;
+  }
+  .card h2{
+    margin:0 0 16px;
+    font-size:17px;
+    color:var(--sage-dark);
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:var(--ink);
+  }
+  .field{margin-bottom:16px;}
+  input[type=text], input[type=email], input[type=tel], input[type=date], input[type=time], select, textarea{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fdfcfa;
+  }
+  textarea{resize:vertical;min-height:60px;}
+  .row{display:flex;gap:16px;flex-wrap:wrap;}
+  .row > .field{flex:1;min-width:160px;}
+  .radio-group, .checkbox-group{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:8px 14px;
+    font-size:13px;
+    cursor:pointer;
+    background:#fdfcfa;
+    user-select:none;
+  }
+  .pill input{display:none;}
+  .pill.checked{
+    background:var(--sage);
+    color:#fff;
+    border-color:var(--sage);
+  }
+  button.primary{
+    background:var(--sage);
+    color:#fff;
+    border:none;
+    padding:12px 22px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  button.primary:hover{background:var(--sage-dark);}
+  button.secondary{
+    background:#fff;
+    color:var(--sage-dark);
+    border:1px solid var(--sage);
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  button.danger{
+    background:#fff;
+    color:var(--declined);
+    border:1px solid var(--declined);
+    padding:9px 16px;
+    border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  button.small{padding:6px 12px;font-size:12px;}
+  .confirm-msg{
+    background:#eef5ef;
+    border:1px solid var(--confirmed);
+    color:var(--sage-dark);
+    padding:14px 18px;
+    border-radius:8px;
+    margin-bottom:16px;
+    display:none;
+  }
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px;
+  }
+  .stat-box{
+    background:var(--cream);
+    border-radius:10px;
+    padding:14px 16px;
+    text-align:left;
+  }
+  .stat-box .num{
+    font-size:24px;
+    font-weight:700;
+    color:var(--sage-dark);
+  }
+  .stat-box .label{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .filters{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .filters button{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .filters button.active{
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+  .request-item{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:10px;
+  }
+  .request-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .request-title{font-weight:600;font-size:15px;}
+  .request-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+  .badge{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+    color:#fff;
+    white-space:nowrap;
+  }
+  .badge.pending{background:var(--pending);}
+  .badge.confirmed{background:var(--confirmed);}
+  .badge.declined{background:var(--declined);}
+  .tag{
+    display:inline-block;
+    background:var(--cream);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:3px 10px;
+    font-size:12px;
+    margin:6px 4px 0 0;
+  }
+  .request-notes{
+    font-size:13px;
+    color:var(--ink);
+    margin-top:8px;
+    font-style:italic;
+  }
+  .request-actions{
+    margin-top:12px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .warning{
+    background:#fdf3e7;
+    border:1px solid var(--pending);
+    color:#8a5a10;
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:12px;
+    margin-top:8px;
+  }
+  .empty{
+    text-align:center;
+    color:var(--muted);
+    padding:30px 10px;
+    font-size:14px;
+  }
+  .footer-actions{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+  }
+  .modal-backdrop{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .modal-backdrop.active{display:flex;}
+  .modal{
+    background:#fff;
+    border-radius:12px;
+    padding:24px;
+    max-width:520px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+  }
+  .modal h2{margin-top:0;}
+  .hint{font-size:12px;color:var(--muted);margin-top:-4px;margin-bottom:14px;}
+
+  /* calendar */
+  .cal-table{border-collapse:collapse;width:100%;min-width:560px;}
+  .cal-table th{
+    background:var(--cream);
+    font-size:12px;
+    font-weight:600;
+    text-align:center;
+    padding:8px 4px;
+    border:1px solid var(--line);
+    color:var(--muted);
+  }
+  .cal-table th.today-col{color:var(--sage-dark);background:var(--sage);color:#fff;}
+  .cal-table td{
+    vertical-align:top;
+    border:1px solid var(--line);
+    padding:6px 4px;
+    min-height:80px;
+    width:calc(100%/7);
+  }
+  .cal-session{
+    background:var(--sage);
+    color:#fff;
+    border-radius:6px;
+    padding:4px 7px;
+    font-size:11px;
+    margin-bottom:4px;
+    cursor:default;
+    line-height:1.4;
+  }
+  .cal-session .cs-time{font-weight:700;}
+  .cal-session .cs-name{opacity:.9;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pilates Session Scheduler</h1>
+  <p>Request sessions and track confirmed bookings &amp; practice hours.</p>
+  <nav>
+    <button id="tab-request" class="active" onclick="showView('request')">Request a Session</button>
+    <button id="tab-dashboard" onclick="showView('dashboard')">Dashboard</button>
+    <button id="tab-calendar" onclick="showView('calendar')">Calendar</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- REQUEST FORM VIEW -->
+  <section id="view-request" class="view active">
+    <div class="confirm-msg" id="confirmMsg">Thanks! Your request has been submitted. You'll hear back once it's confirmed.</div>
+    <div class="card">
+      <h2>Request a Pilates Session</h2>
+      <form id="requestForm">
+        <div class="row">
+          <div class="field">
+            <label>Your Name</label>
+            <input type="text" id="r_name" required>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="r_email" required>
+          </div>
+          <div class="field">
+            <label>Phone (optional)</label>
+            <input type="tel" id="r_phone">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Preferred Date</label>
+            <input type="date" id="r_date" required>
+          </div>
+          <div class="field">
+            <label>Preferred Time</label>
+            <input type="time" id="r_time" required>
+          </div>
+          <div class="field">
+            <label>Duration</label>
+            <select id="r_duration">
+              <option value="15">15 min</option>
+              <option value="30">30 min</option>
+              <option value="50" selected>50 min</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Format</label>
+          <div class="radio-group" id="r_format_group">
+            <label class="pill"><input type="radio" name="format" value="online"> Online</label>
+            <label class="pill"><input type="radio" name="format" value="in-person" checked> In Person</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Equipment</label>
+          <div class="checkbox-group" id="r_equipment_group">
+            <label class="pill"><input type="checkbox" value="mat"> Mat</label>
+            <label class="pill"><input type="checkbox" value="reformer"> Reformer</label>
+            <label class="pill"><input type="checkbox" value="cadillac"> Cadillac</label>
+            <label class="pill"><input type="checkbox" value="barrel"> Barrel(s)</label>
+            <label class="pill"><input type="checkbox" value="chair"> Chair</label>
+            <label class="pill"><input type="checkbox" value="multi"> Multi-Equipment</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Notes (optional)</label>
+          <textarea id="r_notes" placeholder="Anything Grace should know — goals, injuries, scheduling flexibility, etc."></textarea>
+        </div>
+
+        <button type="submit" class="primary">Submit Request</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- DASHBOARD VIEW -->
+  <section id="view-dashboard" class="view">
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;">Practice Hours &amp; Activity</h2>
+        <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;">Requests</h2>
+        <button class="secondary small" onclick="openManualAdd()">+ Add Request Manually</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <input type="text" id="searchBar" placeholder="Search by client name…" oninput="renderRequestList()" style="max-width:320px;">
+      </div>
+      <div class="filters" id="filters">
+        <button data-filter="all" class="active" onclick="setFilter('all')">All</button>
+        <button data-filter="pending" onclick="setFilter('pending')">Pending</button>
+        <button data-filter="confirmed" onclick="setFilter('confirmed')">Confirmed</button>
+        <button data-filter="declined" onclick="setFilter('declined')">Declined</button>
+      </div>
+      <div id="requestList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Backup &amp; Calendar</h2>
+      <p class="hint" style="margin-top:0;">Export confirmed sessions to add to Google/Apple/Outlook calendar, or back up all data.</p>
+      <div class="footer-actions">
+        <button class="secondary" onclick="exportICS()">Export Confirmed Sessions (.ics)</button>
+        <button class="secondary" onclick="exportCSV()">Export All as CSV</button>
+        <button class="secondary" onclick="exportJSON()">Backup Data (.json)</button>
+        <button class="secondary" onclick="document.getElementById('importFile').click()">Import Backup</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CALENDAR VIEW -->
+  <section id="view-calendar" class="view">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+        <h2 style="margin:0;">Weekly Calendar</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="secondary small" onclick="calNav(-1)">&#8592; Prev</button>
+          <span id="calWeekLabel" style="font-size:14px;font-weight:600;min-width:200px;text-align:center;"></span>
+          <button class="secondary small" onclick="calNav(1)">Next &#8594;</button>
+          <button class="secondary small" onclick="calGoToday()">Today</button>
+        </div>
+      </div>
+      <div id="calGrid" style="overflow-x:auto;"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- MANUAL ADD / EDIT MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h2 id="modalTitle">Add Request</h2>
+    <form id="manualForm">
+      <input type="hidden" id="m_id">
+      <div class="row">
+        <div class="field">
+          <label>Client Name</label>
+          <input type="text" id="m_name" required>
+        </div>
+        <div class="field">
+          <label>Email / Phone</label>
+          <input type="text" id="m_contact">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="m_date" required>
+        </div>
+        <div class="field">
+          <label>Time</label>
+          <input type="time" id="m_time" required>
+        </div>
+        <div class="field">
+          <label>Duration</label>
+          <select id="m_duration">
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="50" selected>50 min</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Format</label>
+        <div class="radio-group" id="m_format_group">
+          <label class="pill"><input type="radio" name="mformat" value="online"> Online</label>
+          <label class="pill"><input type="radio" name="mformat" value="in-person" checked> In Person</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Equipment</label>
+        <div class="checkbox-group" id="m_equipment_group">
+          <label class="pill"><input type="checkbox" value="mat"> Mat</label>
+          <label class="pill"><input type="checkbox" value="reformer"> Reformer</label>
+          <label class="pill"><input type="checkbox" value="cadillac"> Cadillac</label>
+          <label class="pill"><input type="checkbox" value="barrel"> Barrel(s)</label>
+          <label class="pill"><input type="checkbox" value="chair"> Chair</label>
+          <label class="pill"><input type="checkbox" value="multi"> Multi-Equipment</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="m_status">
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="declined">Declined</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="m_notes"></textarea>
+      </div>
+      <div id="m_conflict"></div>
+      <div class="footer-actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBOaJBShRHgL5bU790_sbJJRhZNBcwuRnQ",
+  authDomain: "pilates-scheduler-b361a.firebaseapp.com",
+  projectId: "pilates-scheduler-b361a",
+  storageBucket: "pilates-scheduler-b361a.firebasestorage.app",
+  messagingSenderId: "576970550063",
+  appId: "1:576970550063:web:2a4601337e185efe50cfda"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const requestsCollection = db.collection('requests');
+
+const EQUIP_LABELS = {mat:'Mat', reformer:'Reformer', cadillac:'Cadillac', barrel:'Barrel(s)', chair:'Chair', multi:'Multi-Equipment'};
+let currentFilter = 'all';
+
+// Change this to your own PIN before sharing the file with clients.
+const DASHBOARD_PIN = '1214';
+
+function isDashboardUnlocked(){
+  return sessionStorage.getItem('dashboardUnlocked') === 'true';
+}
+function lockDashboard(){
+  sessionStorage.removeItem('dashboardUnlocked');
+  showView('request');
+}
+
+// ---------- storage (synced live from Firestore) ----------
+let allRequests = [];
+function loadRequests(){
+  return allRequests;
+}
+function startSync(){
+  requestsCollection.onSnapshot(function(snapshot){
+    allRequests = snapshot.docs.map(function(doc){
+      return Object.assign({id: doc.id}, doc.data());
+    });
+    if(document.getElementById('view-dashboard').classList.contains('active')){
+      renderDashboard();
+    }
+    if(document.getElementById('view-calendar').classList.contains('active')){
+      renderCalendar();
+    }
+  }, function(err){
+    console.error('Firestore sync error:', err);
+    alert('Could not connect to the shared database. Check your Firebase setup.');
+  });
+}
+
+// ---------- pill toggle behavior ----------
+document.querySelectorAll('.pill').forEach(label=>{
+  const input = label.querySelector('input');
+  const sync = ()=> label.classList.toggle('checked', input.checked);
+  input.addEventListener('change', ()=>{
+    if(input.type === 'radio'){
+      document.querySelectorAll('input[name="'+input.name+'"]').forEach(r=>{
+        r.closest('.pill').classList.toggle('checked', r.checked);
+      });
+    } else {
+      sync();
+    }
+  });
+  sync();
+});
+
+// ---------- view switching ----------
+function showView(name){
+  if((name === 'dashboard' || name === 'calendar') && !isDashboardUnlocked()){
+    const entered = prompt('Enter your dashboard PIN:');
+    if(entered === null) return;
+    if(entered !== DASHBOARD_PIN){
+      alert('Incorrect PIN.');
+      return;
+    }
+    sessionStorage.setItem('dashboardUnlocked', 'true');
+  }
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name === 'dashboard') renderDashboard();
+  if(name === 'calendar') renderCalendar();
+}
+
+// ---------- request form submit ----------
+document.getElementById('requestForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const equipment = Array.from(document.querySelectorAll('#r_equipment_group input:checked')).map(i=>i.value);
+  if(equipment.length === 0){
+    alert('Please select at least one equipment type.');
+    return;
+  }
+  const format = document.querySelector('#r_format_group input:checked').value;
+  const form = this;
+  const req = {
+    clientName: document.getElementById('r_name').value.trim(),
+    clientEmail: document.getElementById('r_email').value.trim(),
+    clientPhone: document.getElementById('r_phone').value.trim(),
+    date: document.getElementById('r_date').value,
+    time: document.getElementById('r_time').value,
+    duration: parseInt(document.getElementById('r_duration').value, 10),
+    format: format,
+    equipment: equipment,
+    notes: document.getElementById('r_notes').value.trim(),
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+  requestsCollection.add(req).then(function(){
+    form.reset();
+    document.querySelectorAll('.pill').forEach(label=>{
+      label.classList.toggle('checked', label.querySelector('input').checked);
+    });
+    const msg = document.getElementById('confirmMsg');
+    msg.style.display = 'block';
+    setTimeout(()=> msg.style.display = 'none', 5000);
+  }).catch(function(err){
+    alert('Could not submit your request — check your connection and try again.\n('+err.message+')');
+  });
+});
+
+// ---------- dashboard rendering ----------
+function setFilter(f){
+  currentFilter = f;
+  document.querySelectorAll('#filters button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderRequestList();
+}
+
+function getEndMinutes(req){
+  const [h,m] = req.time.split(':').map(Number);
+  return h*60 + m + req.duration;
+}
+function getStartMinutes(req){
+  const [h,m] = req.time.split(':').map(Number);
+  return h*60 + m;
+}
+function overlaps(a,b){
+  if(a.date !== b.date) return false;
+  const aStart = getStartMinutes(a), aEnd = getEndMinutes(a);
+  const bStart = getStartMinutes(b), bEnd = getEndMinutes(b);
+  return aStart < bEnd && bStart < aEnd;
+}
+function findConflicts(req, list){
+  return list.filter(o => o.id !== req.id && o.status === 'confirmed' && overlaps(req, o));
+}
+
+function renderDashboard(){
+  renderStats();
+  renderRequestList();
+}
+
+function renderStats(){
+  const list = loadRequests();
+  const confirmed = list.filter(r=>r.status === 'confirmed');
+  const pending = list.filter(r=>r.status === 'pending');
+  const totalMinutes = confirmed.reduce((sum,r)=> sum + r.duration, 0);
+  const totalHours = (totalMinutes/60);
+
+  const byEquip = {};
+  Object.keys(EQUIP_LABELS).forEach(k=> byEquip[k]=0);
+  confirmed.forEach(r=>{
+    r.equipment.forEach(eq=>{
+      byEquip[eq] = (byEquip[eq]||0) + r.duration/60;
+    });
+  });
+
+  let html = '';
+  html += statBox(confirmed.length, 'Confirmed Sessions');
+  html += statBox(pending.length, 'Pending Requests');
+  html += statBox(totalHours.toFixed(1), 'Total Confirmed Hours');
+  Object.keys(EQUIP_LABELS).forEach(k=>{
+    if(byEquip[k] > 0){
+      html += statBox(byEquip[k].toFixed(1)+'h', EQUIP_LABELS[k]);
+    }
+  });
+  document.getElementById('statsGrid').innerHTML = html;
+}
+function statBox(num,label){
+  return '<div class="stat-box"><div class="num">'+num+'</div><div class="label">'+label+'</div></div>';
+}
+
+function renderRequestList(){
+  const list = loadRequests();
+  const searchVal = (document.getElementById('searchBar')?.value || '').toLowerCase().trim();
+  let filtered = currentFilter === 'all' ? list.slice() : list.filter(r=>r.status===currentFilter);
+  if(searchVal) filtered = filtered.filter(r=>(r.clientName||'').toLowerCase().includes(searchVal));
+  filtered.sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
+
+  const container = document.getElementById('requestList');
+  if(filtered.length === 0){
+    container.innerHTML = '<div class="empty">No requests here yet.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(r=>{
+    const conflicts = r.status === 'pending' ? findConflicts(r, list) : [];
+    const equipTags = r.equipment.map(e=>'<span class="tag">'+EQUIP_LABELS[e]+'</span>').join('');
+    const dateLabel = formatDate(r.date) + ' at ' + formatTime(r.time) + ' &middot; ' + r.duration + ' min';
+    const contact = [r.clientEmail, r.clientPhone].filter(Boolean).join(' / ');
+
+    let actions = '';
+    if(r.status === 'pending'){
+      actions = '<button class="secondary small" onclick="setStatus(\''+r.id+'\',\'confirmed\')">Confirm</button>'+
+                 '<button class="danger small" onclick="setStatus(\''+r.id+'\',\'declined\')">Decline</button>'+
+                 '<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
+                 '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
+                 '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
+    } else {
+      actions = '<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
+                 '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
+                 '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
+    }
+
+    return '<div class="request-item">'+
+      '<div class="request-top">'+
+        '<div>'+
+          '<div class="request-title">'+escapeHtml(r.clientName || 'Unnamed')+'</div>'+
+          '<div class="request-sub">'+dateLabel+' &middot; '+(r.format==='online'?'Online':'In Person')+'</div>'+
+          (contact ? '<div class="request-sub">'+escapeHtml(contact)+'</div>' : '')+
+        '</div>'+
+        '<span class="badge '+r.status+'">'+r.status+'</span>'+
+      '</div>'+
+      '<div>'+equipTags+'</div>'+
+      (r.notes ? '<div class="request-notes">"'+escapeHtml(r.notes)+'"</div>' : '')+
+      (conflicts.length ? '<div class="warning">Conflicts with '+conflicts.length+' confirmed session(s) at this time.</div>' : '')+
+      '<div class="request-actions">'+actions+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function setStatus(id, status){
+  const list = loadRequests();
+  const req = list.find(r=>r.id===id);
+  if(!req) return;
+  if(status === 'confirmed'){
+    const conflicts = findConflicts(req, list);
+    if(conflicts.length){
+      const ok = confirm('This overlaps with '+conflicts.length+' already-confirmed session(s) at the same time. Confirm anyway?');
+      if(!ok) return;
+    }
+  }
+  requestsCollection.doc(id).update({status: status}).catch(function(err){
+    alert('Could not update request: ' + err.message);
+  });
+}
+
+function deleteRequest(id){
+  if(!confirm('Delete this request? This cannot be undone.')) return;
+  requestsCollection.doc(id).delete().catch(function(err){
+    alert('Could not delete request: ' + err.message);
+  });
+}
+
+// ---------- manual add / edit modal ----------
+function openManualAdd(){
+  document.getElementById('modalTitle').textContent = 'Add Request';
+  document.getElementById('manualForm').reset();
+  document.getElementById('m_id').value = '';
+  document.querySelectorAll('#manualForm .pill').forEach(l=> l.classList.toggle('checked', l.querySelector('input').checked));
+  document.getElementById('m_conflict').innerHTML = '';
+  document.getElementById('modalBackdrop').classList.add('active');
+}
+
+function openEdit(id){
+  const list = loadRequests();
+  const r = list.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('modalTitle').textContent = 'Edit Request';
+  document.getElementById('m_id').value = r.id;
+  document.getElementById('m_name').value = r.clientName || '';
+  document.getElementById('m_contact').value = [r.clientEmail, r.clientPhone].filter(Boolean).join(' / ');
+  document.getElementById('m_date').value = r.date;
+  document.getElementById('m_time').value = r.time;
+  document.getElementById('m_duration').value = r.duration;
+  document.getElementById('m_status').value = r.status;
+  document.getElementById('m_notes').value = r.notes || '';
+  document.querySelector('#m_format_group input[value="'+r.format+'"]').checked = true;
+  document.querySelectorAll('#m_equipment_group input').forEach(cb=>{
+    cb.checked = r.equipment.includes(cb.value);
+  });
+  document.querySelectorAll('#manualForm .pill').forEach(l=> l.classList.toggle('checked', l.querySelector('input').checked));
+  document.getElementById('m_conflict').innerHTML = '';
+  document.getElementById('modalBackdrop').classList.add('active');
+}
+
+function closeModal(){
+  document.getElementById('modalBackdrop').classList.remove('active');
+}
+
+document.getElementById('manualForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const equipment = Array.from(document.querySelectorAll('#m_equipment_group input:checked')).map(i=>i.value);
+  if(equipment.length === 0){
+    alert('Please select at least one equipment type.');
+    return;
+  }
+  const id = document.getElementById('m_id').value;
+  const contact = document.getElementById('m_contact').value.trim();
+  const isEmail = contact.includes('@');
+  const data = {
+    clientName: document.getElementById('m_name').value.trim(),
+    clientEmail: isEmail ? contact : '',
+    clientPhone: !isEmail ? contact : '',
+    date: document.getElementById('m_date').value,
+    time: document.getElementById('m_time').value,
+    duration: parseInt(document.getElementById('m_duration').value,10),
+    format: document.querySelector('#m_format_group input:checked').value,
+    equipment: equipment,
+    status: document.getElementById('m_status').value,
+    notes: document.getElementById('m_notes').value.trim()
+  };
+
+  const list = loadRequests();
+  if(data.status === 'confirmed'){
+    const tempReq = Object.assign({id: id || 'temp'}, data);
+    const conflicts = findConflicts(tempReq, list);
+    if(conflicts.length){
+      const ok = confirm('This overlaps with '+conflicts.length+' already-confirmed session(s). Save anyway?');
+      if(!ok) return;
+    }
+  }
+
+  let savePromise;
+  if(id){
+    savePromise = requestsCollection.doc(id).update(data);
+  } else {
+    data.createdAt = new Date().toISOString();
+    savePromise = requestsCollection.add(data);
+  }
+  savePromise.then(function(){
+    closeModal();
+  }).catch(function(err){
+    alert('Could not save request: ' + err.message);
+  });
+});
+
+// ---------- export helpers ----------
+function pad(n){ return n.toString().padStart(2,'0'); }
+
+function formatDate(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  return dt.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+}
+function formatTime(timeStr){
+  const [h,m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return h12 + ':' + pad(m) + ' ' + ampm;
+}
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function downloadFile(filename, content, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function icsDate(dateStr, timeStr){
+  return dateStr.replace(/-/g,'') + 'T' + timeStr.replace(':','') + '00';
+}
+function addMinutes(dateStr, timeStr, minutes){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const [h,min] = timeStr.split(':').map(Number);
+  const dt = new Date(y, m-1, d, h, min + minutes);
+  return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';
+}
+
+function exportICS(){
+  const list = loadRequests().filter(r=>r.status==='confirmed');
+  if(list.length === 0){ alert('No confirmed sessions to export.'); return; }
+  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Pilates Scheduler//EN\r\n';
+  list.forEach(r=>{
+    const start = icsDate(r.date, r.time);
+    const end = addMinutes(r.date, r.time, r.duration);
+    const equipLabel = r.equipment.map(e=>EQUIP_LABELS[e]).join(', ');
+    const summary = 'Pilates Session - '+(r.clientName||'Client')+' ('+equipLabel+')';
+    const location = r.format === 'online' ? 'Online' : 'In Person';
+    ics += 'BEGIN:VEVENT\r\n';
+    ics += 'UID:'+r.id+'@pilates-scheduler\r\n';
+    ics += 'DTSTAMP:'+icsDate(r.date,r.time)+'Z\r\n';
+    ics += 'DTSTART:'+start+'\r\n';
+    ics += 'DTEND:'+end+'\r\n';
+    ics += 'SUMMARY:'+summary+'\r\n';
+    ics += 'LOCATION:'+location+'\r\n';
+    ics += 'DESCRIPTION:'+(r.notes||'').replace(/\n/g,' ')+'\r\n';
+    ics += 'END:VEVENT\r\n';
+  });
+  ics += 'END:VCALENDAR\r\n';
+  downloadFile('pilates-sessions.ics', ics, 'text/calendar');
+}
+
+function exportCSV(){
+  const list = loadRequests();
+  if(list.length === 0){ alert('No requests to export.'); return; }
+  const headers = ['Name','Email','Phone','Date','Time','Duration','Format','Equipment','Status','Notes'];
+  const rows = list.map(r=>[
+    r.clientName, r.clientEmail, r.clientPhone, r.date, r.time, r.duration, r.format,
+    r.equipment.map(e=>EQUIP_LABELS[e]).join('; '), r.status, (r.notes||'').replace(/\n/g,' ')
+  ]);
+  const csv = [headers, ...rows].map(row =>
+    row.map(cell => '"'+String(cell??'').replace(/"/g,'""')+'"').join(',')
+  ).join('\r\n');
+  downloadFile('pilates-requests.csv', csv, 'text/csv');
+}
+
+function exportJSON(){
+  const list = loadRequests();
+  downloadFile('pilates-scheduler-backup.json', JSON.stringify(list, null, 2), 'application/json');
+}
+
+function importJSON(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!Array.isArray(imported)) throw new Error('Invalid file');
+      const writes = imported.map(function(r){
+        const copy = Object.assign({}, r);
+        delete copy.id;
+        return requestsCollection.add(copy);
+      });
+      Promise.all(writes).then(function(){
+        alert('Import complete. '+imported.length+' record(s) added to the shared database.');
+      }).catch(function(err){
+        alert('Some records may not have imported: ' + err.message);
+      });
+    }catch(err){
+      alert('Could not import file: '+err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ---------- copy confirmation message ----------
+function copyMsg(id){
+  const list = loadRequests();
+  const r = list.find(x=>x.id===id);
+  if(!r) return;
+  const equipLabel = r.equipment.map(e=>EQUIP_LABELS[e]).join(', ');
+  let msg = '';
+  if(r.status === 'confirmed'){
+    msg = 'Hi '+r.clientName.split(' ')[0]+'! Your Pilates session is confirmed for '+
+      formatDate(r.date)+' at '+formatTime(r.time)+' ('+r.duration+' min, '+
+      (r.format==='online'?'online':'in person')+', '+equipLabel+'). See you then!';
+  } else if(r.status === 'pending'){
+    msg = 'Hi '+r.clientName.split(' ')[0]+'! I received your Pilates session request for '+
+      formatDate(r.date)+' at '+formatTime(r.time)+'. I\'ll confirm shortly — thanks!';
+  } else {
+    msg = 'Hi '+r.clientName.split(' ')[0]+'! Unfortunately I\'m not available for '+
+      formatDate(r.date)+' at '+formatTime(r.time)+'. Please feel free to request another time!';
+  }
+  navigator.clipboard.writeText(msg).then(function(){
+    alert('Message copied to clipboard!');
+  }).catch(function(){
+    prompt('Copy this message:', msg);
+  });
+}
+
+// ---------- calendar ----------
+let calWeekOffset = 0;
+
+function calNav(dir){ calWeekOffset += dir; renderCalendar(); }
+function calGoToday(){ calWeekOffset = 0; renderCalendar(); }
+
+function getWeekStart(offset){
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((day + 6) % 7) + offset * 7);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function toYMD(date){
+  return date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate());
+}
+
+function renderCalendar(){
+  const weekStart = getWeekStart(calWeekOffset);
+  const days = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate()+i);
+    days.push(d);
+  }
+
+  const todayStr = toYMD(new Date());
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const weekEnd = days[6];
+  const label = monthNames[weekStart.getMonth()]+' '+weekStart.getDate()+
+    (weekStart.getMonth()!==weekEnd.getMonth()?' – '+monthNames[weekEnd.getMonth()]:' –')+
+    ' '+weekEnd.getDate()+', '+weekEnd.getFullYear();
+  document.getElementById('calWeekLabel').textContent = label;
+
+  const confirmed = loadRequests().filter(r=>r.status==='confirmed');
+  const byDay = {};
+  days.forEach(d=>{ byDay[toYMD(d)] = []; });
+  confirmed.forEach(r=>{ if(byDay[r.date]) byDay[r.date].push(r); });
+  days.forEach(d=>{ byDay[toYMD(d)].sort((a,b)=>a.time.localeCompare(b.time)); });
+
+  let html = '<table class="cal-table"><thead><tr>';
+  days.forEach((d,i)=>{
+    const ymd = toYMD(d);
+    const isToday = ymd === todayStr;
+    html += '<th class="'+(isToday?'today-col':'')+'">'+dayNames[i]+'<br>'+monthNames[d.getMonth()]+' '+d.getDate()+'</th>';
+  });
+  html += '</tr></thead><tbody><tr>';
+  days.forEach(d=>{
+    const ymd = toYMD(d);
+    const sessions = byDay[ymd];
+    html += '<td>';
+    if(sessions.length===0){
+      html += '<span style="color:var(--muted);font-size:11px;display:block;text-align:center;padding-top:10px;">—</span>';
+    } else {
+      sessions.forEach(r=>{
+        const equipLabel = r.equipment.map(e=>EQUIP_LABELS[e]).join(', ');
+        html += '<div class="cal-session" title="'+escapeHtml(r.clientName)+' · '+r.duration+' min · '+equipLabel+'">'+
+          '<div class="cs-time">'+formatTime(r.time)+'</div>'+
+          '<div class="cs-name">'+escapeHtml(r.clientName||'Client')+'</div>'+
+          '<div style="font-size:10px;opacity:.8;">'+r.duration+' min</div>'+
+        '</div>';
+      });
+    }
+    html += '</td>';
+  });
+  html += '</tr></tbody></table>';
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+// init
+startSync();
+</script>
+
+</body>
+</html>
