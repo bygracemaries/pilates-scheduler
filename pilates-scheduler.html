@@ -605,6 +605,10 @@ function renderSlotPicker(){
   const y = target.getFullYear();
   const mo = target.getMonth();
 
+  // Don't allow navigating to past months
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  if(target < thisMonth){ slotCalOffset++; return renderSlotPicker(); }
+
   document.getElementById('slotCalLabel').textContent = MONTH_NAMES[mo]+' '+y;
 
   const daysInMonth = new Date(y, mo+1, 0).getDate();
