@@ -436,8 +436,9 @@ const DASHBOARD_PIN = '1214';
 
 // ---------- session state ----------
 let allRequests = [];
-let availSettings = { windows: [] };
+let availSettings = { dates: {} };
 let slotCalOffset = 0;
+let availCalOffset = 0;
 let selectedDate = null;
 let selectedTime = null;
 
@@ -506,63 +507,112 @@ function showView(name){
 }
 
 // ---------- availability editor ----------
+function availCalNav(dir){ availCalOffset+=dir; renderAvailEditor(); }
+
 function renderAvailEditor(){
   const container = document.getElementById('availEditor');
   if(!container) return;
-  let html = '';
-  for(let d=0;d<7;d++){
-    const win = (availSettings.windows||[]).find(w=>w.day===d);
-    const checked = !!win;
-    html += '<div class="avail-row">'+
-      '<label class="avail-day-label">'+
-        '<input type="checkbox" id="avail_day_'+d+'" '+(checked?'checked':'')+' onchange="toggleAvailDay('+d+')">'+
-        DAY_NAMES[d]+
-      '</label>'+
-      '<div class="avail-times" id="avail_times_'+d+'" style="display:'+(checked?'flex':'none')+';">'+
-        '<input type="time" id="avail_start_'+d+'" value="'+(win?win.start:'09:00')+'">'+
-        '<span style="color:var(--muted);font-size:13px;">to</span>'+
-        '<input type="time" id="avail_end_'+d+'" value="'+(win?win.end:'17:00')+'">'+
-      '</div>'+
-    '</div>';
+
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth()+availCalOffset, 1);
+  const y = target.getFullYear(), mo = target.getMonth();
+  const daysInMonth = new Date(y,mo+1,0).getDate();
+  const firstDow = new Date(y,mo,1).getDay();
+  const startOffset = (firstDow+6)%7;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dates = availSettings.dates || {};
+
+  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'+
+    '<button type="button" class="secondary small" onclick="availCalNav(-1)">&#8592;</button>'+
+    '<span style="font-weight:600;font-size:14px;flex:1;text-align:center;">'+MONTH_NAMES[mo]+' '+y+'</span>'+
+    '<button type="button" class="secondary small" onclick="availCalNav(1)">&#8594;</button>'+
+  '</div>';
+
+  html += '<p class="hint" style="margin-top:0;">Click a date to mark it available (green = available). Then set your hours below and click Save.</p>';
+
+  html += '<table class="slot-cal-table"><thead><tr>';
+  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(n=>{ html+='<th>'+n+'</th>'; });
+  html += '</tr></thead><tbody><tr>';
+
+  for(let i=0;i<startOffset;i++) html+='<td></td>';
+  let col=startOffset;
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=y+'-'+pad(mo+1)+'-'+pad(d);
+    const date=new Date(y,mo,d);
+    const isPast=date<today;
+    const isSet=!!dates[dateStr];
+    let cls='slot-day';
+    let onclick='';
+    if(isPast){ cls+=' past'; }
+    else if(isSet){ cls+=' selected'; onclick='onclick="toggleAvailDate(\''+dateStr+'\')"'; }
+    else { cls+=' available'; onclick='onclick="toggleAvailDate(\''+dateStr+'\')"'; }
+    html+='<td><div class="'+cls+'" '+onclick+'>'+d+'</div></td>';
+    col++;
+    if(col%7===0 && d<daysInMonth) html+='</tr><tr>';
   }
+  while(col%7!==0){ html+='<td></td>'; col++; }
+  html+='</tr></tbody></table>';
+
+  const selectedDates = Object.keys(dates).filter(ds=>ds.startsWith(y+'-'+pad(mo+1))).sort();
+  if(selectedDates.length>0){
+    html+='<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">'+
+      '<div style="font-size:13px;font-weight:600;margin-bottom:10px;">Set hours for each available date:</div>';
+    selectedDates.forEach(ds=>{
+      const av=dates[ds];
+      const [y2,m2,d2]=ds.split('-').map(Number);
+      const dayLabel=new Date(y2,m2-1,d2).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+      html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">'+
+        '<span style="font-size:13px;font-weight:600;min-width:130px;">'+dayLabel+'</span>'+
+        '<input type="time" id="avail_start_'+ds+'" value="'+av.start+'" style="width:110px;padding:6px 8px;">'+
+        '<span style="color:var(--muted);font-size:13px;">to</span>'+
+        '<input type="time" id="avail_end_'+ds+'" value="'+av.end+'" style="width:110px;padding:6px 8px;">'+
+        '<button type="button" class="danger small" onclick="removeAvailDate(\''+ds+'\')">Remove</button>'+
+      '</div>';
+    });
+    html+='</div>';
+  }
+
   container.innerHTML = html;
 }
 
-function toggleAvailDay(d){
-  const checked = document.getElementById('avail_day_'+d).checked;
-  document.getElementById('avail_times_'+d).style.display = checked ? 'flex' : 'none';
+function toggleAvailDate(dateStr){
+  if(!availSettings.dates) availSettings.dates={};
+  if(availSettings.dates[dateStr]){ delete availSettings.dates[dateStr]; }
+  else { availSettings.dates[dateStr]={start:'09:00',end:'17:00'}; }
+  renderAvailEditor();
+  renderSlotPicker();
+}
+
+function removeAvailDate(dateStr){
+  if(availSettings.dates) delete availSettings.dates[dateStr];
+  renderAvailEditor();
+  renderSlotPicker();
 }
 
 function saveAvailability(){
-  const windows = [];
-  for(let d=0;d<7;d++){
-    const cb = document.getElementById('avail_day_'+d);
-    if(cb && cb.checked){
-      const start = document.getElementById('avail_start_'+d).value;
-      const end = document.getElementById('avail_end_'+d).value;
-      if(start && end && start < end) windows.push({day:d, start, end});
-    }
-  }
-  settingsDoc.set({windows}).then(function(){
-    alert('Availability saved!');
-  }).catch(function(err){
-    alert('Could not save: '+err.message);
+  const dates = Object.assign({}, availSettings.dates||{});
+  Object.keys(dates).forEach(ds=>{
+    const s=document.getElementById('avail_start_'+ds);
+    const e=document.getElementById('avail_end_'+ds);
+    if(s && e) dates[ds]={start:s.value, end:e.value};
   });
+  availSettings.dates = dates;
+  settingsDoc.set({dates}).then(function(){
+    alert('Availability saved!');
+    renderSlotPicker();
+  }).catch(function(err){ alert('Could not save: '+err.message); });
 }
 
 // ---------- slot picker ----------
 function getAvailableSlotsForDate(dateStr, duration){
-  const [y,m,d] = dateStr.split('-').map(Number);
-  const dayOfWeek = new Date(y, m-1, d).getDay();
-  const windows = (availSettings.windows||[]).filter(w=>w.day===dayOfWeek);
+  const av = (availSettings.dates||{})[dateStr];
+  if(!av) return [];
+  const [sh,sm] = av.start.split(':').map(Number);
+  const [eh,em] = av.end.split(':').map(Number);
+  let cur = sh*60+sm;
+  const endMin = eh*60+em;
   const slots = [];
-  windows.forEach(w=>{
-    const [sh,sm] = w.start.split(':').map(Number);
-    const [eh,em] = w.end.split(':').map(Number);
-    let cur = sh*60+sm;
-    const endMin = eh*60+em;
-    while(cur+duration <= endMin){ slots.push(cur); cur+=duration; }
-  });
+  while(cur+duration <= endMin){ slots.push(cur); cur+=duration; }
   const confirmed = loadRequests().filter(r=>r.status==='confirmed' && r.date===dateStr);
   return slots.filter(slot=>{
     const slotEnd = slot+duration;
@@ -591,7 +641,7 @@ function renderSlotPicker(){
 
   const duration = parseInt(document.getElementById('r_duration').value, 10);
 
-  if(!availSettings.windows || availSettings.windows.length === 0){
+  if(!availSettings.dates || Object.keys(availSettings.dates).length === 0){
     msg.textContent = 'No availability set yet — check back soon!';
     msg.style.display = 'block';
     cal.style.display = 'none';
