@@ -8,7 +8,6 @@
   :root{
     --sage:#B9D3E9;
     --sage-dark:#3F6483;
-    --blush:#e8c4c4;
     --cream:#faf6f1;
     --ink:#3a3a35;
     --muted:#8a8a82;
@@ -16,166 +15,89 @@
     --pending:#d8a948;
     --confirmed:#6a9c7a;
     --declined:#c46a6a;
-    --white:#ffffff;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
-    background:var(--cream);
-    color:var(--ink);
-  }
-  header{
-    background:var(--sage);
-    color:#fff;
-    padding:24px 28px 0;
-  }
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--cream);color:var(--ink);}
+  header{background:var(--sage);color:#fff;padding:24px 28px 0;}
   header h1{margin:0 0 4px;font-size:22px;font-weight:600;}
   header p{margin:0 0 18px;font-size:13px;opacity:.9;}
   nav{display:flex;gap:4px;}
-  nav button{
-    background:rgba(255,255,255,.15);
-    border:none;color:#fff;
-    padding:10px 20px;font-size:14px;cursor:pointer;
-    border-radius:8px 8px 0 0;opacity:.75;
-  }
-  nav button.active{
-    background:var(--cream);color:var(--sage-dark);
-    opacity:1;font-weight:600;
-  }
+  nav button{background:rgba(255,255,255,.15);border:none;color:#fff;padding:10px 20px;font-size:14px;cursor:pointer;border-radius:8px 8px 0 0;opacity:.75;}
+  nav button.active{background:var(--cream);color:var(--sage-dark);opacity:1;font-weight:600;}
   main{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
   .view{display:none;}
   .view.active{display:block;}
-  .card{
-    background:#fff;border:1px solid var(--line);
-    border-radius:12px;padding:22px;margin-bottom:18px;
-  }
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:18px;}
   .card h2{margin:0 0 16px;font-size:17px;color:var(--sage-dark);}
   label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);}
   .field{margin-bottom:16px;}
   input[type=text],input[type=email],input[type=tel],input[type=date],input[type=time],select,textarea{
-    width:100%;padding:10px 12px;border:1px solid var(--line);
-    border-radius:8px;font-size:14px;font-family:inherit;background:#fdfcfa;
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fdfcfa;
   }
   textarea{resize:vertical;min-height:60px;}
   .row{display:flex;gap:16px;flex-wrap:wrap;}
   .row>.field{flex:1;min-width:160px;}
   .radio-group,.checkbox-group{display:flex;gap:10px;flex-wrap:wrap;}
-  .pill{
-    border:1px solid var(--line);border-radius:20px;padding:8px 14px;
-    font-size:13px;cursor:pointer;background:#fdfcfa;user-select:none;
-  }
+  .pill{border:1px solid var(--line);border-radius:20px;padding:8px 14px;font-size:13px;cursor:pointer;background:#fdfcfa;user-select:none;}
   .pill input{display:none;}
   .pill.checked{background:var(--sage);color:#fff;border-color:var(--sage);}
-  button.primary{
-    background:var(--sage);color:#fff;border:none;
-    padding:12px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;
-  }
+  button.primary{background:var(--sage);color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;}
   button.primary:hover{background:var(--sage-dark);}
-  button.secondary{
-    background:#fff;color:var(--sage-dark);border:1px solid var(--sage);
-    padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;
-  }
-  button.danger{
-    background:#fff;color:var(--declined);border:1px solid var(--declined);
-    padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;
-  }
+  button.secondary{background:#fff;color:var(--sage-dark);border:1px solid var(--sage);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;}
+  button.danger{background:#fff;color:var(--declined);border:1px solid var(--declined);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;}
   button.small{padding:6px 12px;font-size:12px;}
-  .confirm-msg{
-    background:#eef5ef;border:1px solid var(--confirmed);color:var(--sage-dark);
-    padding:14px 18px;border-radius:8px;margin-bottom:16px;display:none;
-  }
+  .confirm-msg{background:#eef5ef;border:1px solid var(--confirmed);color:var(--sage-dark);padding:14px 18px;border-radius:8px;margin-bottom:16px;display:none;}
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
   .stat-box{background:var(--cream);border-radius:10px;padding:14px 16px;}
   .stat-box .num{font-size:24px;font-weight:700;color:var(--sage-dark);}
-  .stat-box .label{font-size:12px;color:var(--muted);}
+  .stat-box .lbl{font-size:12px;color:var(--muted);}
   .filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
-  .filters button{
-    background:#fff;border:1px solid var(--line);
-    padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;
-  }
+  .filters button{background:#fff;border:1px solid var(--line);padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;}
   .filters button.active{background:var(--ink);color:#fff;border-color:var(--ink);}
   .request-item{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:10px;}
   .request-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
   .request-title{font-weight:600;font-size:15px;}
   .request-sub{font-size:13px;color:var(--muted);margin-top:2px;}
-  .badge{
-    font-size:11px;font-weight:700;text-transform:uppercase;
-    padding:4px 10px;border-radius:20px;color:#fff;white-space:nowrap;
-  }
+  .badge{font-size:11px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:20px;color:#fff;white-space:nowrap;}
   .badge.pending{background:var(--pending);}
   .badge.confirmed{background:var(--confirmed);}
   .badge.declined{background:var(--declined);}
-  .tag{
-    display:inline-block;background:var(--cream);border:1px solid var(--line);
-    border-radius:14px;padding:3px 10px;font-size:12px;margin:6px 4px 0 0;
-  }
+  .badge.cancelled{background:var(--muted);}
+  .tag{display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:12px;margin:6px 4px 0 0;}
   .request-notes{font-size:13px;color:var(--ink);margin-top:8px;font-style:italic;}
   .request-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;}
-  .warning{
-    background:#fdf3e7;border:1px solid var(--pending);color:#8a5a10;
-    padding:8px 12px;border-radius:8px;font-size:12px;margin-top:8px;
-  }
+  .warning{background:#fdf3e7;border:1px solid var(--pending);color:#8a5a10;padding:8px 12px;border-radius:8px;font-size:12px;margin-top:8px;}
   .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;}
   .footer-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
-  .modal-backdrop{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);
-    align-items:center;justify-content:center;padding:20px;z-index:50;
-  }
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;padding:20px;z-index:50;}
   .modal-backdrop.active{display:flex;}
-  .modal{
-    background:#fff;border-radius:12px;padding:24px;
-    max-width:520px;width:100%;max-height:85vh;overflow-y:auto;
-  }
+  .modal{background:#fff;border-radius:12px;padding:24px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;}
   .modal h2{margin-top:0;}
   .hint{font-size:12px;color:var(--muted);margin-top:-4px;margin-bottom:14px;}
 
   /* weekly calendar */
   .cal-table{border-collapse:collapse;width:100%;min-width:560px;}
-  .cal-table th{
-    background:var(--cream);font-size:12px;font-weight:600;
-    text-align:center;padding:8px 4px;border:1px solid var(--line);color:var(--muted);
-  }
+  .cal-table th{background:var(--cream);font-size:12px;font-weight:600;text-align:center;padding:8px 4px;border:1px solid var(--line);color:var(--muted);}
   .cal-table th.today-col{background:var(--sage);color:#fff;}
   .cal-table td{vertical-align:top;border:1px solid var(--line);padding:6px 4px;min-height:80px;width:calc(100%/7);}
-  .cal-session{
-    background:var(--sage);color:#fff;border-radius:6px;
-    padding:4px 7px;font-size:11px;margin-bottom:4px;cursor:default;line-height:1.4;
-  }
+  .cal-session{background:var(--sage);color:#fff;border-radius:6px;padding:4px 7px;font-size:11px;margin-bottom:4px;line-height:1.4;}
   .cal-session .cs-time{font-weight:700;}
-  .cal-session .cs-name{opacity:.9;}
 
-  /* slot picker */
+  /* slot picker & avail editor shared calendar */
   .slot-cal-table{border-collapse:collapse;width:100%;}
-  .slot-cal-table th{
-    font-size:11px;font-weight:600;text-align:center;
-    padding:6px 2px;color:var(--muted);
-  }
+  .slot-cal-table th{font-size:11px;font-weight:600;text-align:center;padding:6px 2px;color:var(--muted);}
   .slot-cal-table td{border:none;padding:3px;text-align:center;}
-  .slot-day{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:34px;height:34px;border-radius:50%;font-size:13px;
-  }
-  .slot-day.available{
-    cursor:pointer;font-weight:600;color:var(--sage-dark);
-    background:#eef4f9;
-  }
+  .slot-day{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-size:13px;}
+  .slot-day.available{cursor:pointer;font-weight:600;color:var(--sage-dark);background:#eef4f9;}
   .slot-day.available:hover{background:var(--sage);color:#fff;}
   .slot-day.selected{background:var(--sage);color:#fff;font-weight:700;}
   .slot-day.past,.slot-day.unavailable{color:#ccc;}
-  .slot-time-btn{
-    padding:8px 14px;border-radius:8px;border:1px solid var(--sage);
-    font-size:13px;cursor:pointer;background:#fff;color:var(--sage-dark);
-  }
+  .slot-time-btn{padding:8px 14px;border-radius:8px;border:1px solid var(--sage);font-size:13px;cursor:pointer;background:#fff;color:var(--sage-dark);}
   .slot-time-btn.selected{background:var(--sage);color:#fff;font-weight:600;}
 
-  /* availability editor */
-  .avail-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line);}
-  .avail-row:last-child{border-bottom:none;}
-  .avail-day-label{display:flex;align-items:center;gap:8px;min-width:110px;font-weight:600;font-size:14px;cursor:pointer;}
-  .avail-day-label input[type=checkbox]{width:16px;height:16px;cursor:pointer;}
-  .avail-times{display:flex;gap:8px;align-items:center;}
-  .avail-times input[type=time]{width:110px;padding:7px 10px;}
+  /* time slot chips in avail editor */
+  .time-chip{display:inline-flex;align-items:center;gap:4px;background:#eef4f9;border:1px solid var(--sage);border-radius:16px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--sage-dark);margin:3px;}
+  .time-chip button{background:none;border:none;color:var(--sage-dark);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;}
 </style>
 </head>
 <body>
@@ -192,7 +114,7 @@
 
 <main>
 
-  <!-- REQUEST FORM VIEW -->
+  <!-- REQUEST FORM -->
   <section id="view-request" class="view active">
     <div class="confirm-msg" id="confirmMsg">Thanks! Your request has been submitted. You'll hear back once it's confirmed.</div>
     <div class="card">
@@ -207,15 +129,6 @@
             <label>Email or Phone</label>
             <input type="text" id="r_contact" placeholder="Either one is fine" required>
           </div>
-        </div>
-
-        <div class="field" style="max-width:200px;">
-          <label>Duration</label>
-          <select id="r_duration" onchange="renderSlotPicker()">
-            <option value="15">15 min</option>
-            <option value="30">30 min</option>
-            <option value="50" selected>50 min</option>
-          </select>
         </div>
 
         <div class="field">
@@ -246,15 +159,15 @@
         </div>
 
         <div class="field">
-          <label>Equipment</label>
+          <label>Equipment — choose one or more</label>
           <div class="checkbox-group" id="r_equipment_group">
             <label class="pill"><input type="checkbox" value="mat"> Mat</label>
             <label class="pill"><input type="checkbox" value="reformer"> Reformer</label>
-            <label class="pill"><input type="checkbox" value="cadillac"> Cadillac</label>
+            <label class="pill"><input type="checkbox" value="cadillac"> Tower/Cadillac</label>
             <label class="pill"><input type="checkbox" value="barrel"> Barrel(s)</label>
             <label class="pill"><input type="checkbox" value="chair"> Chair</label>
-            <label class="pill"><input type="checkbox" value="multi"> Multi-Equipment</label>
           </div>
+          <div class="hint" style="margin-top:8px;margin-bottom:0;">To have a multi-equipment class (example: reformer + mat or reformer + tower/cadillac) select more than one equipment.</div>
         </div>
 
         <div class="field">
@@ -267,25 +180,8 @@
     </div>
   </section>
 
-  <!-- DASHBOARD VIEW -->
+  <!-- DASHBOARD -->
   <section id="view-dashboard" class="view">
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <h2 style="margin:0;">Practice Hours &amp; Activity</h2>
-        <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
-      </div>
-      <div class="stats-grid" id="statsGrid"></div>
-    </div>
-
-    <div class="card">
-      <h2>My Availability</h2>
-      <p class="hint" style="margin-top:-8px;">Set the days and hours you're available to teach. Clients will only see these windows when booking.</p>
-      <div id="availEditor"></div>
-      <div style="margin-top:16px;">
-        <button class="primary" onclick="saveAvailability()">Save Availability</button>
-      </div>
-    </div>
 
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
@@ -300,17 +196,35 @@
         <button data-filter="pending" onclick="setFilter('pending')">Pending</button>
         <button data-filter="confirmed" onclick="setFilter('confirmed')">Confirmed</button>
         <button data-filter="declined" onclick="setFilter('declined')">Declined</button>
+        <button data-filter="cancelled" onclick="setFilter('cancelled')">Cancelled</button>
       </div>
       <div id="requestList"></div>
     </div>
 
     <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;">Practice Hours &amp; Activity</h2>
+        <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>My Availability</h2>
+      <p class="hint" style="margin-top:-8px;">Click a date to select it, then add your available time slots for that day. Hit Save when done.</p>
+      <div id="availEditor"></div>
+      <div style="margin-top:16px;">
+        <button class="primary" onclick="saveAvailability()">Save Availability</button>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>Backup &amp; Calendar</h2>
-      <p class="hint" style="margin-top:0;">Export confirmed sessions to add to Google/Apple/Outlook calendar, or back up all data.</p>
+      <p class="hint" style="margin-top:0;">Export confirmed sessions or back up all data.</p>
       <div class="footer-actions">
-        <button class="secondary" onclick="exportICS()">Export Confirmed Sessions (.ics)</button>
+        <button class="secondary" onclick="exportICS()">Export Confirmed (.ics)</button>
         <button class="secondary" onclick="exportCSV()">Export All as CSV</button>
-        <button class="secondary" onclick="exportJSON()">Backup Data (.json)</button>
+        <button class="secondary" onclick="exportJSON()">Backup (.json)</button>
         <button class="secondary" onclick="document.getElementById('importFile').click()">Import Backup</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
       </div>
@@ -318,7 +232,7 @@
 
   </section>
 
-  <!-- CALENDAR VIEW -->
+  <!-- CALENDAR -->
   <section id="view-calendar" class="view">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
@@ -336,7 +250,7 @@
 
 </main>
 
-<!-- MANUAL ADD / EDIT MODAL -->
+<!-- MODAL -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <h2 id="modalTitle">Add Request</h2>
@@ -361,14 +275,6 @@
           <label>Time</label>
           <input type="time" id="m_time" required>
         </div>
-        <div class="field">
-          <label>Duration</label>
-          <select id="m_duration">
-            <option value="15">15 min</option>
-            <option value="30">30 min</option>
-            <option value="50" selected>50 min</option>
-          </select>
-        </div>
       </div>
       <div class="field">
         <label>Format</label>
@@ -382,10 +288,9 @@
         <div class="checkbox-group" id="m_equipment_group">
           <label class="pill"><input type="checkbox" value="mat"> Mat</label>
           <label class="pill"><input type="checkbox" value="reformer"> Reformer</label>
-          <label class="pill"><input type="checkbox" value="cadillac"> Cadillac</label>
+          <label class="pill"><input type="checkbox" value="cadillac"> Tower/Cadillac</label>
           <label class="pill"><input type="checkbox" value="barrel"> Barrel(s)</label>
           <label class="pill"><input type="checkbox" value="chair"> Chair</label>
-          <label class="pill"><input type="checkbox" value="multi"> Multi-Equipment</label>
         </div>
       </div>
       <div class="field">
@@ -394,6 +299,7 @@
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="declined">Declined</option>
+          <option value="cancelled">Cancelled</option>
         </select>
       </div>
       <div class="field">
@@ -411,7 +317,6 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBOaJBShRHgL5bU790_sbJJRhZNBcwuRnQ",
@@ -427,48 +332,45 @@ const db = firebase.firestore();
 const requestsCollection = db.collection('requests');
 const settingsDoc = db.collection('settings').doc('availability');
 
-const EQUIP_LABELS = {mat:'Mat',reformer:'Reformer',cadillac:'Cadillac',barrel:'Barrel(s)',chair:'Chair',multi:'Multi-Equipment'};
-const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const EQUIP_LABELS = {mat:'Mat',reformer:'Reformer',cadillac:'Tower/Cadillac',barrel:'Barrel(s)',chair:'Chair'};
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SESSION_DURATION = 50;
 
 let currentFilter = 'all';
 const DASHBOARD_PIN = '1214';
-
-// ---------- session state ----------
 let allRequests = [];
 let availSettings = { dates: {} };
 let slotCalOffset = 0;
 let availCalOffset = 0;
 let selectedDate = null;
 let selectedTime = null;
+let availSelectedDate = null; // date selected in avail editor
 
 // ---------- auth ----------
-function isDashboardUnlocked(){
-  return sessionStorage.getItem('dashboardUnlocked') === 'true';
-}
-function lockDashboard(){
-  sessionStorage.removeItem('dashboardUnlocked');
-  showView('request');
-}
+function isDashboardUnlocked(){ return sessionStorage.getItem('dashboardUnlocked')==='true'; }
+function lockDashboard(){ sessionStorage.removeItem('dashboardUnlocked'); showView('request'); }
 
-// ---------- firestore sync ----------
+// ---------- firestore ----------
 function startSync(){
   requestsCollection.onSnapshot(function(snapshot){
-    allRequests = snapshot.docs.map(function(doc){
-      return Object.assign({id:doc.id}, doc.data());
-    });
+    allRequests = snapshot.docs.map(doc=>Object.assign({id:doc.id},doc.data()));
     if(document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
     if(document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
     renderSlotPicker();
   }, function(err){
-    console.error('Firestore sync error:', err);
-    alert('Could not connect to the shared database. Check your Firebase setup.');
+    console.error(err);
+    alert('Could not connect to the database. Check your Firebase setup.');
   });
 }
 
 function startAvailSync(){
   settingsDoc.onSnapshot(function(doc){
-    availSettings = doc.exists ? doc.data() : { windows:[] };
+    const raw = doc.exists ? doc.data() : {dates:{}};
+    const cleaned = {};
+    Object.entries(raw.dates||{}).forEach(([ds,v])=>{
+      if(Array.isArray(v) && v.length>0) cleaned[ds]=v;
+    });
+    availSettings = {dates: cleaned};
     renderAvailEditor();
     renderSlotPicker();
   });
@@ -479,11 +381,11 @@ function loadRequests(){ return allRequests; }
 // ---------- pill toggle ----------
 document.querySelectorAll('.pill').forEach(label=>{
   const input = label.querySelector('input');
-  const sync = ()=> label.classList.toggle('checked', input.checked);
-  input.addEventListener('change', ()=>{
-    if(input.type === 'radio'){
+  const sync = ()=>label.classList.toggle('checked',input.checked);
+  input.addEventListener('change',()=>{
+    if(input.type==='radio'){
       document.querySelectorAll('input[name="'+input.name+'"]').forEach(r=>{
-        r.closest('.pill').classList.toggle('checked', r.checked);
+        r.closest('.pill').classList.toggle('checked',r.checked);
       });
     } else { sync(); }
   });
@@ -492,10 +394,10 @@ document.querySelectorAll('.pill').forEach(label=>{
 
 // ---------- view switching ----------
 function showView(name){
-  if((name==='dashboard'||name==='calendar') && !isDashboardUnlocked()){
-    const entered = prompt('Enter your dashboard PIN:');
-    if(entered === null) return;
-    if(entered !== DASHBOARD_PIN){ alert('Incorrect PIN.'); return; }
+  if((name==='dashboard'||name==='calendar')&&!isDashboardUnlocked()){
+    const entered=prompt('Enter your dashboard PIN:');
+    if(entered===null) return;
+    if(entered!==DASHBOARD_PIN){ alert('Incorrect PIN.'); return; }
     sessionStorage.setItem('dashboardUnlocked','true');
   }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -507,7 +409,7 @@ function showView(name){
 }
 
 // ---------- availability editor ----------
-function availCalNav(dir){ availCalOffset+=dir; renderAvailEditor(); }
+function availCalNav(dir){ availCalOffset+=dir; availSelectedDate=null; renderAvailEditor(); }
 
 function renderAvailEditor(){
   const container = document.getElementById('availEditor');
@@ -520,7 +422,7 @@ function renderAvailEditor(){
   const firstDow = new Date(y,mo,1).getDay();
   const startOffset = (firstDow+6)%7;
   const today = new Date(); today.setHours(0,0,0,0);
-  const dates = availSettings.dates || {};
+  const dates = availSettings.dates||{};
 
   let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'+
     '<button type="button" class="secondary small" onclick="availCalNav(-1)">&#8592;</button>'+
@@ -528,340 +430,310 @@ function renderAvailEditor(){
     '<button type="button" class="secondary small" onclick="availCalNav(1)">&#8594;</button>'+
   '</div>';
 
-  html += '<p class="hint" style="margin-top:0;">Click a date to mark it available (green = available). Then set your hours below and click Save.</p>';
-
+  // calendar grid
   html += '<table class="slot-cal-table"><thead><tr>';
   ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(n=>{ html+='<th>'+n+'</th>'; });
   html += '</tr></thead><tbody><tr>';
-
   for(let i=0;i<startOffset;i++) html+='<td></td>';
   let col=startOffset;
   for(let d=1;d<=daysInMonth;d++){
-    const dateStr=y+'-'+pad(mo+1)+'-'+pad(d);
+    const ds=y+'-'+pad(mo+1)+'-'+pad(d);
     const date=new Date(y,mo,d);
     const isPast=date<today;
-    const isSet=!!dates[dateStr];
+    const isSet=Array.isArray(dates[ds])&&dates[ds].length>0;
+    const isSelEditing = ds===availSelectedDate;
     let cls='slot-day';
     let onclick='';
-    if(isPast){ cls+=' past'; }
-    else if(isSet){ cls+=' selected'; onclick='onclick="toggleAvailDate(\''+dateStr+'\')"'; }
-    else { cls+=' available'; onclick='onclick="toggleAvailDate(\''+dateStr+'\')"'; }
+    if(isSelEditing){ cls+=' selected'; onclick='onclick="availSelectDate(\''+ds+'\')"'; }
+    else if(isSet){ cls+=' selected'; onclick='onclick="availSelectDate(\''+ds+'\')"'; }
+    else if(isPast){ cls+=' past available'; onclick='onclick="availSelectDate(\''+ds+'\')"'; }
+    else { cls+=' available'; onclick='onclick="availSelectDate(\''+ds+'\')"'; }
     html+='<td><div class="'+cls+'" '+onclick+'>'+d+'</div></td>';
     col++;
-    if(col%7===0 && d<daysInMonth) html+='</tr><tr>';
+    if(col%7===0&&d<daysInMonth) html+='</tr><tr>';
   }
   while(col%7!==0){ html+='<td></td>'; col++; }
   html+='</tr></tbody></table>';
 
-  const selectedDates = Object.keys(dates).filter(ds=>ds.startsWith(y+'-'+pad(mo+1))).sort();
-  if(selectedDates.length>0){
-    html+='<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">'+
-      '<div style="font-size:13px;font-weight:600;margin-bottom:10px;">Set hours for each available date:</div>';
-    selectedDates.forEach(ds=>{
-      const av=dates[ds];
-      const [y2,m2,d2]=ds.split('-').map(Number);
-      const dayLabel=new Date(y2,m2-1,d2).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
-      html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">'+
-        '<span style="font-size:13px;font-weight:600;min-width:130px;">'+dayLabel+'</span>'+
-        '<input type="time" id="avail_start_'+ds+'" value="'+av.start+'" style="width:110px;padding:6px 8px;">'+
-        '<span style="color:var(--muted);font-size:13px;">to</span>'+
-        '<input type="time" id="avail_end_'+ds+'" value="'+av.end+'" style="width:110px;padding:6px 8px;">'+
-        '<button type="button" class="danger small" onclick="removeAvailDate(\''+ds+'\')">Remove</button>'+
-      '</div>';
-    });
-    html+='</div>';
+  // slot editor for selected date
+  if(availSelectedDate){
+    const [ay,am,ad]=availSelectedDate.split('-').map(Number);
+    const dayLabel=new Date(ay,am-1,ad).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+    const raw=dates[availSelectedDate]; const slots=(Array.isArray(raw)?raw:[]).slice().sort();
+    html+='<div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px;">'+
+      '<div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--sage-dark);">'+dayLabel+'</div>'+
+      '<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:4px;" id="slotChips">';
+    if(slots.length===0){
+      html+='<span style="color:var(--muted);font-size:13px;">No time slots yet — add one below.</span>';
+    } else {
+      slots.forEach(t=>{
+        html+='<span class="time-chip">'+formatTime(t)+
+          '<button type="button" onclick="removeSlot(\''+availSelectedDate+'\',\''+t+'\')" title="Remove">&#x2715;</button>'+
+          '</span>';
+      });
+    }
+    html+='</div>'+
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'+
+        '<input type="time" id="newSlotTime" style="width:130px;padding:7px 10px;">'+
+        '<button type="button" class="secondary small" onclick="addSlot(\''+availSelectedDate+'\')">+ Add time</button>'+
+      '</div>'+
+    '</div>';
+  } else {
+    html+='<p style="margin-top:14px;font-size:13px;color:var(--muted);">Click a date to add or edit time slots for that day.</p>';
   }
 
   container.innerHTML = html;
 }
 
-function toggleAvailDate(dateStr){
-  if(!availSettings.dates) availSettings.dates={};
-  if(availSettings.dates[dateStr]){ delete availSettings.dates[dateStr]; }
-  else { availSettings.dates[dateStr]={start:'09:00',end:'17:00'}; }
+function availSelectDate(ds){
+  availSelectedDate = (availSelectedDate===ds) ? null : ds;
+  if(ds && !Array.isArray(availSettings.dates[ds])) availSettings.dates[ds]=[];
+  renderAvailEditor();
+}
+
+function addSlot(ds){
+  const input = document.getElementById('newSlotTime');
+  const t = input.value;
+  if(!t){ alert('Please pick a time first.'); return; }
+  if(!availSettings.dates[ds]) availSettings.dates[ds]=[];
+  if(!availSettings.dates[ds].includes(t)){
+    availSettings.dates[ds].push(t);
+    availSettings.dates[ds].sort();
+  }
   renderAvailEditor();
   renderSlotPicker();
 }
 
-function removeAvailDate(dateStr){
-  if(availSettings.dates) delete availSettings.dates[dateStr];
+function removeSlot(ds, t){
+  if(availSettings.dates[ds]){
+    availSettings.dates[ds]=availSettings.dates[ds].filter(x=>x!==t);
+    if(availSettings.dates[ds].length===0) delete availSettings.dates[ds];
+  }
   renderAvailEditor();
   renderSlotPicker();
 }
 
 function saveAvailability(){
-  const dates = Object.assign({}, availSettings.dates||{});
-  Object.keys(dates).forEach(ds=>{
-    const s=document.getElementById('avail_start_'+ds);
-    const e=document.getElementById('avail_end_'+ds);
-    if(s && e) dates[ds]={start:s.value, end:e.value};
+  const cleaned = {};
+  Object.entries(availSettings.dates||{}).forEach(([ds,v])=>{
+    if(Array.isArray(v) && v.length>0) cleaned[ds]=v;
   });
-  availSettings.dates = dates;
-  settingsDoc.set({dates}).then(function(){
+  settingsDoc.set({dates: cleaned}).then(function(){
     alert('Availability saved!');
-    renderSlotPicker();
   }).catch(function(err){ alert('Could not save: '+err.message); });
 }
 
-// ---------- slot picker ----------
-function getAvailableSlotsForDate(dateStr, duration){
-  const av = (availSettings.dates||{})[dateStr];
-  if(!av) return [];
-  const [sh,sm] = av.start.split(':').map(Number);
-  const [eh,em] = av.end.split(':').map(Number);
-  let cur = sh*60+sm;
-  const endMin = eh*60+em;
-  const slots = [];
-  while(cur+duration <= endMin){ slots.push(cur); cur+=duration; }
-  const confirmed = loadRequests().filter(r=>r.status==='confirmed' && r.date===dateStr);
-  return slots.filter(slot=>{
-    const slotEnd = slot+duration;
+// ---------- slot picker (client side) ----------
+function getAvailableSlotsForDate(dateStr){
+  const slots = (availSettings.dates||{})[dateStr];
+  if(!Array.isArray(slots)||slots.length===0) return [];
+  const confirmed = loadRequests().filter(r=>r.status==='confirmed'&&r.date===dateStr);
+  return slots.filter(t=>{
+    const [h,m]=t.split(':').map(Number);
+    const start=h*60+m, end=start+SESSION_DURATION;
     return !confirmed.some(r=>{
-      const rStart = getStartMinutes(r);
-      const rEnd = getEndMinutes(r);
-      return slot < rEnd && rStart < slotEnd;
+      const rs=getStartMinutes(r), re=rs+SESSION_DURATION;
+      return start<re&&rs<end;
     });
   });
 }
 
 function slotCalNav(dir){
-  slotCalOffset += dir;
-  selectedDate = null;
-  selectedTime = null;
-  document.getElementById('r_date').value = '';
-  document.getElementById('r_time').value = '';
-  document.getElementById('r_slot_display').textContent = '';
+  slotCalOffset+=dir;
+  selectedDate=null; selectedTime=null;
+  document.getElementById('r_date').value='';
+  document.getElementById('r_time').value='';
+  document.getElementById('r_slot_display').textContent='';
   renderSlotPicker();
 }
 
 function renderSlotPicker(){
-  const msg = document.getElementById('slotPickerMsg');
-  const cal = document.getElementById('slotPickerCal');
-  if(!msg || !cal) return;
+  const msg=document.getElementById('slotPickerMsg');
+  const cal=document.getElementById('slotPickerCal');
+  if(!msg||!cal) return;
 
-  const duration = parseInt(document.getElementById('r_duration').value, 10);
-
-  if(!availSettings.dates || Object.keys(availSettings.dates).length === 0){
-    msg.textContent = 'No availability set yet — check back soon!';
-    msg.style.display = 'block';
-    cal.style.display = 'none';
-    return;
+  const dates=availSettings.dates||{};
+  const hasAny=Object.keys(dates).some(ds=>Array.isArray(dates[ds])&&dates[ds].length>0);
+  if(!hasAny){
+    msg.textContent='No availability set yet — check back soon!';
+    msg.style.display='block'; cal.style.display='none'; return;
   }
-  msg.style.display = 'none';
-  cal.style.display = 'block';
+  msg.style.display='none'; cal.style.display='block';
 
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth() + slotCalOffset, 1);
-  const y = target.getFullYear();
-  const mo = target.getMonth();
+  const now=new Date();
+  const target=new Date(now.getFullYear(),now.getMonth()+slotCalOffset,1);
+  const thisMonth=new Date(now.getFullYear(),now.getMonth(),1);
+  if(target<thisMonth){ slotCalOffset++; return renderSlotPicker(); }
 
-  // Don't allow navigating to past months
-  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  if(target < thisMonth){ slotCalOffset++; return renderSlotPicker(); }
+  const y=target.getFullYear(), mo=target.getMonth();
+  document.getElementById('slotCalLabel').textContent=MONTH_NAMES[mo]+' '+y;
 
-  document.getElementById('slotCalLabel').textContent = MONTH_NAMES[mo]+' '+y;
+  const daysInMonth=new Date(y,mo+1,0).getDate();
+  const firstDow=new Date(y,mo,1).getDay();
+  const startOffset=(firstDow+6)%7;
+  const today=new Date(); today.setHours(0,0,0,0);
 
-  const daysInMonth = new Date(y, mo+1, 0).getDate();
-  const firstDow = new Date(y, mo, 1).getDay();
-  const startOffset = (firstDow+6)%7; // Mon-start
-
-  const today = new Date(); today.setHours(0,0,0,0);
-
-  let html = '<table class="slot-cal-table"><thead><tr>';
-  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(n=>{ html += '<th>'+n+'</th>'; });
-  html += '</tr></thead><tbody><tr>';
-
-  for(let i=0;i<startOffset;i++) html += '<td></td>';
-
-  let col = startOffset;
+  let html='<table class="slot-cal-table"><thead><tr>';
+  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(n=>{ html+='<th>'+n+'</th>'; });
+  html+='</tr></thead><tbody><tr>';
+  for(let i=0;i<startOffset;i++) html+='<td></td>';
+  let col=startOffset;
   for(let d=1;d<=daysInMonth;d++){
-    const dateStr = y+'-'+pad(mo+1)+'-'+pad(d);
-    const date = new Date(y, mo, d);
-    const isPast = date < today;
-    const slots = isPast ? [] : getAvailableSlotsForDate(dateStr, duration);
-    const hasSlots = slots.length > 0;
-    const isSelected = dateStr === selectedDate;
-
-    let cls = 'slot-day';
-    let onclick = '';
-    if(isPast || !hasSlots){ cls += ' '+(isPast?'past':'unavailable'); }
-    else if(isSelected){ cls += ' available selected'; }
-    else { cls += ' available'; onclick = 'onclick="selectSlotDate(\''+dateStr+'\')"'; }
-
-    html += '<td><div class="'+cls+'" '+onclick+'>'+d+'</div></td>';
+    const ds=y+'-'+pad(mo+1)+'-'+pad(d);
+    const date=new Date(y,mo,d);
+    const isPast=date<today;
+    const slots=isPast?[]:getAvailableSlotsForDate(ds);
+    const hasSlots=slots.length>0;
+    const isSel=ds===selectedDate;
+    let cls='slot-day', onclick='';
+    if(isPast||!hasSlots){ cls+=' '+(isPast?'past':'unavailable'); }
+    else if(isSel){ cls+=' available selected'; }
+    else { cls+=' available'; onclick='onclick="selectSlotDate(\''+ds+'\')"'; }
+    html+='<td><div class="'+cls+'" '+onclick+'>'+d+'</div></td>';
     col++;
-    if(col%7===0 && d<daysInMonth) html += '</tr><tr>';
+    if(col%7===0&&d<daysInMonth) html+='</tr><tr>';
   }
-  while(col%7!==0){ html += '<td></td>'; col++; }
-  html += '</tr></tbody></table>';
-
-  document.getElementById('slotCalGrid').innerHTML = html;
-  renderTimeSlots(duration);
+  while(col%7!==0){ html+='<td></td>'; col++; }
+  html+='</tr></tbody></table>';
+  document.getElementById('slotCalGrid').innerHTML=html;
+  renderTimeSlots();
 }
 
-function selectSlotDate(dateStr){
-  selectedDate = dateStr;
-  selectedTime = null;
-  document.getElementById('r_date').value = dateStr;
-  document.getElementById('r_time').value = '';
-  document.getElementById('r_slot_display').textContent = '';
+function selectSlotDate(ds){
+  selectedDate=ds; selectedTime=null;
+  document.getElementById('r_date').value=ds;
+  document.getElementById('r_time').value='';
+  document.getElementById('r_slot_display').textContent='';
   renderSlotPicker();
 }
 
-function renderTimeSlots(duration){
-  const container = document.getElementById('slotTimeList');
-  if(!container || !selectedDate) { if(container) container.innerHTML=''; return; }
-
-  const slots = getAvailableSlotsForDate(selectedDate, duration);
-  if(slots.length===0){
-    container.innerHTML = '<div style="color:var(--muted);font-size:13px;">No slots available for this day.</div>';
-    return;
-  }
-
-  const [y,m,d] = selectedDate.split('-').map(Number);
-  const dayLabel = new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
-
-  let html = '<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--ink);">Available times for '+dayLabel+':</div>';
-  html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-  slots.forEach(slot=>{
-    const h=Math.floor(slot/60), min=slot%60;
-    const timeStr = pad(h)+':'+pad(min);
-    const isSel = timeStr===selectedTime;
-    html += '<button type="button" class="slot-time-btn'+(isSel?' selected':'') +'" onclick="selectSlotTime(\''+timeStr+'\')">'+formatTime(timeStr)+'</button>';
+function renderTimeSlots(){
+  const container=document.getElementById('slotTimeList');
+  if(!container||!selectedDate){ if(container) container.innerHTML=''; return; }
+  const slots=getAvailableSlotsForDate(selectedDate);
+  if(slots.length===0){ container.innerHTML='<div style="color:var(--muted);font-size:13px;">No slots available for this day.</div>'; return; }
+  const [y,m,d]=selectedDate.split('-').map(Number);
+  const dayLabel=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+  let html='<div style="font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Available times for '+dayLabel+':</div>';
+  html+='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Each session is 50 minutes.</div>';
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+  slots.forEach(t=>{
+    const isSel=t===selectedTime;
+    html+='<button type="button" class="slot-time-btn'+(isSel?' selected':'')+'" onclick="selectSlotTime(\''+t+'\')">'+formatTime(t)+' &middot; 50 min</button>';
   });
-  html += '</div>';
-  container.innerHTML = html;
+  html+='</div>';
+  container.innerHTML=html;
 }
 
-function selectSlotTime(timeStr){
-  selectedTime = timeStr;
-  document.getElementById('r_time').value = timeStr;
-  const [y,m,d] = selectedDate.split('-').map(Number);
-  const dayLabel = new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
-  document.getElementById('r_slot_display').textContent = 'Selected: '+dayLabel+' at '+formatTime(timeStr);
+function selectSlotTime(t){
+  selectedTime=t;
+  document.getElementById('r_time').value=t;
+  const [y,m,d]=selectedDate.split('-').map(Number);
+  const dayLabel=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('r_slot_display').textContent='Selected: '+dayLabel+' at '+formatTime(t);
   renderSlotPicker();
 }
 
-// ---------- request form submit ----------
-document.getElementById('requestForm').addEventListener('submit', function(e){
+// ---------- request form ----------
+document.getElementById('requestForm').addEventListener('submit',function(e){
   e.preventDefault();
-  const equipment = Array.from(document.querySelectorAll('#r_equipment_group input:checked')).map(i=>i.value);
+  const equipment=Array.from(document.querySelectorAll('#r_equipment_group input:checked')).map(i=>i.value);
   if(equipment.length===0){ alert('Please select at least one equipment type.'); return; }
-  const dateVal = document.getElementById('r_date').value;
-  const timeVal = document.getElementById('r_time').value;
+  const dateVal=document.getElementById('r_date').value;
+  const timeVal=document.getElementById('r_time').value;
   if(!dateVal){ alert('Please select a date.'); return; }
   if(!timeVal){ alert('Please select a time slot.'); return; }
-  const format = document.querySelector('#r_format_group input:checked').value;
-  const form = this;
-  const req = {
-    clientName: document.getElementById('r_name').value.trim(),
-    clientContact: document.getElementById('r_contact').value.trim(),
-    date: dateVal,
-    time: timeVal,
-    duration: parseInt(document.getElementById('r_duration').value, 10),
-    format: format,
-    equipment: equipment,
-    notes: document.getElementById('r_notes').value.trim(),
-    status: 'pending',
-    createdAt: new Date().toISOString()
+  const form=this;
+  const req={
+    clientName:document.getElementById('r_name').value.trim(),
+    clientContact:document.getElementById('r_contact').value.trim(),
+    date:dateVal, time:timeVal,
+    duration:SESSION_DURATION,
+    format:document.querySelector('#r_format_group input:checked').value,
+    equipment, notes:document.getElementById('r_notes').value.trim(),
+    status:'pending', createdAt:new Date().toISOString()
   };
   requestsCollection.add(req).then(function(){
     form.reset();
-    selectedDate = null;
-    selectedTime = null;
-    document.getElementById('r_date').value = '';
-    document.getElementById('r_time').value = '';
-    document.getElementById('r_slot_display').textContent = '';
-    slotCalOffset = 0;
-    document.querySelectorAll('.pill').forEach(label=>{
-      label.classList.toggle('checked', label.querySelector('input').checked);
-    });
+    selectedDate=null; selectedTime=null;
+    document.getElementById('r_date').value='';
+    document.getElementById('r_time').value='';
+    document.getElementById('r_slot_display').textContent='';
+    slotCalOffset=0;
+    document.querySelectorAll('.pill').forEach(l=>l.classList.toggle('checked',l.querySelector('input').checked));
     renderSlotPicker();
-    const msg = document.getElementById('confirmMsg');
+    const msg=document.getElementById('confirmMsg');
     msg.style.display='block';
-    setTimeout(()=>msg.style.display='none', 5000);
-  }).catch(function(err){
-    alert('Could not submit your request — check your connection and try again.\n('+err.message+')');
-  });
+    setTimeout(()=>msg.style.display='none',5000);
+  }).catch(function(err){ alert('Could not submit: '+err.message); });
 });
 
-// ---------- dashboard rendering ----------
+// ---------- dashboard ----------
 function setFilter(f){
-  currentFilter = f;
-  document.querySelectorAll('#filters button').forEach(b=>{
-    b.classList.toggle('active', b.dataset.filter===f);
-  });
+  currentFilter=f;
+  document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
   renderRequestList();
 }
 
-function getEndMinutes(req){
-  const [h,m] = req.time.split(':').map(Number);
-  return h*60+m+req.duration;
-}
-function getStartMinutes(req){
-  const [h,m] = req.time.split(':').map(Number);
-  return h*60+m;
-}
+function getStartMinutes(req){ const [h,m]=req.time.split(':').map(Number); return h*60+m; }
+function getEndMinutes(req){ return getStartMinutes(req)+SESSION_DURATION; }
 function overlaps(a,b){
   if(a.date!==b.date) return false;
-  const aS=getStartMinutes(a),aE=getEndMinutes(a);
-  const bS=getStartMinutes(b),bE=getEndMinutes(b);
-  return aS<bE && bS<aE;
+  return getStartMinutes(a)<getEndMinutes(b)&&getStartMinutes(b)<getEndMinutes(a);
 }
-function findConflicts(req,list){
-  return list.filter(o=>o.id!==req.id && o.status==='confirmed' && overlaps(req,o));
-}
+function findConflicts(req,list){ return list.filter(o=>o.id!==req.id&&o.status==='confirmed'&&overlaps(req,o)); }
 
 function renderDashboard(){ renderStats(); renderRequestList(); renderAvailEditor(); }
 
 function renderStats(){
-  const list = loadRequests();
-  const confirmed = list.filter(r=>r.status==='confirmed');
-  const pending = list.filter(r=>r.status==='pending');
-  const totalMinutes = confirmed.reduce((sum,r)=>sum+r.duration,0);
-  const byEquip = {};
+  const list=loadRequests();
+  const confirmed=list.filter(r=>r.status==='confirmed');
+  const pending=list.filter(r=>r.status==='pending');
+  const totalHours=confirmed.length; // each session = 1 hour
+  const byEquip={};
   Object.keys(EQUIP_LABELS).forEach(k=>byEquip[k]=0);
-  confirmed.forEach(r=>{ r.equipment.forEach(eq=>{ byEquip[eq]=(byEquip[eq]||0)+r.duration/60; }); });
-  let html = '';
-  html += statBox(confirmed.length,'Confirmed Sessions');
-  html += statBox(pending.length,'Pending Requests');
-  html += statBox((totalMinutes/60).toFixed(1),'Total Confirmed Hours');
-  Object.keys(EQUIP_LABELS).forEach(k=>{ if(byEquip[k]>0) html+=statBox(byEquip[k].toFixed(1)+'h',EQUIP_LABELS[k]); });
-  document.getElementById('statsGrid').innerHTML = html;
+  confirmed.forEach(r=>{ r.equipment.forEach(eq=>{ byEquip[eq]=(byEquip[eq]||0)+1; }); });
+  let html='';
+  html+=statBox(confirmed.length,'Confirmed Sessions');
+  html+=statBox(pending.length,'Pending Requests');
+  html+=statBox(totalHours,'Confirmed Hours');
+  Object.keys(EQUIP_LABELS).forEach(k=>{ if(byEquip[k]>0) html+=statBox(byEquip[k]+'h',EQUIP_LABELS[k]); });
+  document.getElementById('statsGrid').innerHTML=html;
 }
 function statBox(num,label){
-  return '<div class="stat-box"><div class="num">'+num+'</div><div class="label">'+label+'</div></div>';
+  return '<div class="stat-box"><div class="num">'+num+'</div><div class="lbl">'+label+'</div></div>';
 }
 
 function renderRequestList(){
-  const list = loadRequests();
-  const searchVal = (document.getElementById('searchBar')?.value||'').toLowerCase().trim();
-  let filtered = currentFilter==='all' ? list.slice() : list.filter(r=>r.status===currentFilter);
-  if(searchVal) filtered = filtered.filter(r=>(r.clientName||'').toLowerCase().includes(searchVal));
+  const list=loadRequests();
+  const searchVal=(document.getElementById('searchBar')?.value||'').toLowerCase().trim();
+  let filtered=currentFilter==='all'?list.slice():list.filter(r=>r.status===currentFilter);
+  if(searchVal) filtered=filtered.filter(r=>(r.clientName||'').toLowerCase().includes(searchVal));
   filtered.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-
-  const container = document.getElementById('requestList');
+  const container=document.getElementById('requestList');
   if(filtered.length===0){ container.innerHTML='<div class="empty">No requests here yet.</div>'; return; }
-
-  container.innerHTML = filtered.map(r=>{
-    const conflicts = r.status==='pending' ? findConflicts(r,list) : [];
-    const equipTags = r.equipment.map(e=>'<span class="tag">'+EQUIP_LABELS[e]+'</span>').join('');
-    const dateLabel = formatDate(r.date)+' at '+formatTime(r.time)+' &middot; '+r.duration+' min';
-    const contact = r.clientContact || [r.clientEmail,r.clientPhone].filter(Boolean).join(' / ');
-
-    let actions = '';
+  container.innerHTML=filtered.map(r=>{
+    const conflicts=r.status==='pending'?findConflicts(r,list):[];
+    const equipTags=r.equipment.map(e=>'<span class="tag">'+(EQUIP_LABELS[e]||e)+'</span>').join('');
+    const dateLabel=formatDate(r.date)+' at '+formatTime(r.time)+' &middot; 50 min (1 hr)';
+    const contact=r.clientContact||[r.clientEmail,r.clientPhone].filter(Boolean).join(' / ');
+    let actions='';
     if(r.status==='pending'){
-      actions = '<button class="secondary small" onclick="setStatus(\''+r.id+'\',\'confirmed\')">Confirm</button>'+
-                '<button class="danger small" onclick="setStatus(\''+r.id+'\',\'declined\')">Decline</button>'+
-                '<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
-                '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
-                '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
+      actions='<button class="secondary small" onclick="setStatus(\''+r.id+'\',\'confirmed\')">Confirm</button>'+
+               '<button class="danger small" onclick="setStatus(\''+r.id+'\',\'declined\')">Decline</button>'+
+               '<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
+               '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
+               '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
+    } else if(r.status==='confirmed'){
+      actions='<button class="danger small" onclick="setStatus(\''+r.id+'\',\'cancelled\')">Mark Cancelled</button>'+
+               '<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
+               '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
+               '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
     } else {
-      actions = '<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
-                '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
-                '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
+      actions='<button class="secondary small" onclick="openEdit(\''+r.id+'\')">Edit</button>'+
+               '<button class="secondary small" onclick="copyMsg(\''+r.id+'\')">Copy Msg</button>'+
+               '<button class="danger small" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
     }
-
     return '<div class="request-item">'+
       '<div class="request-top">'+
         '<div>'+
@@ -873,32 +745,31 @@ function renderRequestList(){
       '</div>'+
       '<div>'+equipTags+'</div>'+
       (r.notes?'<div class="request-notes">"'+escapeHtml(r.notes)+'"</div>':'')+
-      (conflicts.length?'<div class="warning">Conflicts with '+conflicts.length+' confirmed session(s) at this time.</div>':'')+
+      (conflicts.length?'<div class="warning">Conflicts with '+conflicts.length+' confirmed session(s).</div>':'')+
       '<div class="request-actions">'+actions+'</div>'+
     '</div>';
   }).join('');
 }
 
 function setStatus(id,status){
-  const list = loadRequests();
-  const req = list.find(r=>r.id===id);
+  const list=loadRequests();
+  const req=list.find(r=>r.id===id);
   if(!req) return;
   if(status==='confirmed'){
-    const conflicts = findConflicts(req,list);
+    const conflicts=findConflicts(req,list);
     if(conflicts.length){
-      const ok = confirm('This overlaps with '+conflicts.length+' already-confirmed session(s). Confirm anyway?');
-      if(!ok) return;
+      if(!confirm('This overlaps with '+conflicts.length+' confirmed session(s). Confirm anyway?')) return;
     }
   }
-  requestsCollection.doc(id).update({status}).catch(function(err){ alert('Could not update: '+err.message); });
+  requestsCollection.doc(id).update({status}).catch(err=>alert('Could not update: '+err.message));
 }
 
 function deleteRequest(id){
   if(!confirm('Delete this request? This cannot be undone.')) return;
-  requestsCollection.doc(id).delete().catch(function(err){ alert('Could not delete: '+err.message); });
+  requestsCollection.doc(id).delete().catch(err=>alert('Could not delete: '+err.message));
 }
 
-// ---------- manual add / edit modal ----------
+// ---------- modal ----------
 function openManualAdd(){
   document.getElementById('modalTitle').textContent='Add Request';
   document.getElementById('manualForm').reset();
@@ -909,8 +780,7 @@ function openManualAdd(){
 }
 
 function openEdit(id){
-  const list = loadRequests();
-  const r = list.find(x=>x.id===id);
+  const r=loadRequests().find(x=>x.id===id);
   if(!r) return;
   document.getElementById('modalTitle').textContent='Edit Request';
   document.getElementById('m_id').value=r.id;
@@ -918,7 +788,6 @@ function openEdit(id){
   document.getElementById('m_contact').value=r.clientContact||[r.clientEmail,r.clientPhone].filter(Boolean).join(' / ');
   document.getElementById('m_date').value=r.date;
   document.getElementById('m_time').value=r.time;
-  document.getElementById('m_duration').value=r.duration;
   document.getElementById('m_status').value=r.status;
   document.getElementById('m_notes').value=r.notes||'';
   document.querySelector('#m_format_group input[value="'+r.format+'"]').checked=true;
@@ -930,105 +799,93 @@ function openEdit(id){
 
 function closeModal(){ document.getElementById('modalBackdrop').classList.remove('active'); }
 
-document.getElementById('manualForm').addEventListener('submit', function(e){
+document.getElementById('manualForm').addEventListener('submit',function(e){
   e.preventDefault();
-  const equipment = Array.from(document.querySelectorAll('#m_equipment_group input:checked')).map(i=>i.value);
+  const equipment=Array.from(document.querySelectorAll('#m_equipment_group input:checked')).map(i=>i.value);
   if(equipment.length===0){ alert('Please select at least one equipment type.'); return; }
-  const id = document.getElementById('m_id').value;
-  const contact = document.getElementById('m_contact').value.trim();
-  const data = {
-    clientName: document.getElementById('m_name').value.trim(),
-    clientContact: contact,
-    date: document.getElementById('m_date').value,
-    time: document.getElementById('m_time').value,
-    duration: parseInt(document.getElementById('m_duration').value,10),
-    format: document.querySelector('#m_format_group input:checked').value,
-    equipment: equipment,
-    status: document.getElementById('m_status').value,
-    notes: document.getElementById('m_notes').value.trim()
+  const id=document.getElementById('m_id').value;
+  const data={
+    clientName:document.getElementById('m_name').value.trim(),
+    clientContact:document.getElementById('m_contact').value.trim(),
+    date:document.getElementById('m_date').value,
+    time:document.getElementById('m_time').value,
+    duration:SESSION_DURATION,
+    format:document.querySelector('#m_format_group input:checked').value,
+    equipment,
+    status:document.getElementById('m_status').value,
+    notes:document.getElementById('m_notes').value.trim()
   };
-  const list = loadRequests();
+  const list=loadRequests();
   if(data.status==='confirmed'){
-    const tempReq = Object.assign({id:id||'temp'}, data);
-    const conflicts = findConflicts(tempReq,list);
+    const tempReq=Object.assign({id:id||'temp'},data);
+    const conflicts=findConflicts(tempReq,list);
     if(conflicts.length){
-      const ok = confirm('This overlaps with '+conflicts.length+' already-confirmed session(s). Save anyway?');
-      if(!ok) return;
+      if(!confirm('This overlaps with '+conflicts.length+' confirmed session(s). Save anyway?')) return;
     }
   }
-  let savePromise;
-  if(id){ savePromise = requestsCollection.doc(id).update(data); }
-  else { data.createdAt=new Date().toISOString(); savePromise=requestsCollection.add(data); }
-  savePromise.then(function(){ closeModal(); }).catch(function(err){ alert('Could not save: '+err.message); });
+  let p;
+  if(id){ p=requestsCollection.doc(id).update(data); }
+  else { data.createdAt=new Date().toISOString(); p=requestsCollection.add(data); }
+  p.then(closeModal).catch(err=>alert('Could not save: '+err.message));
 });
 
 // ---------- copy message ----------
 function copyMsg(id){
-  const list = loadRequests();
-  const r = list.find(x=>x.id===id);
+  const r=loadRequests().find(x=>x.id===id);
   if(!r) return;
-  const equipLabel = r.equipment.map(e=>EQUIP_LABELS[e]).join(', ');
-  const firstName = (r.clientName||'').split(' ')[0];
-  let msg = '';
+  const eq=r.equipment.map(e=>EQUIP_LABELS[e]||e).join(', ');
+  const fn=(r.clientName||'').split(' ')[0];
+  let msg='';
   if(r.status==='confirmed'){
-    msg='Hi '+firstName+'! Your Pilates session is confirmed for '+formatDate(r.date)+' at '+formatTime(r.time)+
-      ' ('+r.duration+' min, '+(r.format==='online'?'online':'in person')+', '+equipLabel+'). See you then!';
+    msg='Hi '+fn+'! Your Pilates session is confirmed for '+formatDate(r.date)+' at '+formatTime(r.time)+
+      ' ('+(r.format==='online'?'online':'in person')+', '+eq+'). See you then!';
   } else if(r.status==='pending'){
-    msg='Hi '+firstName+'! I received your Pilates session request for '+formatDate(r.date)+' at '+formatTime(r.time)+'. I\'ll confirm shortly — thanks!';
+    msg='Hi '+fn+'! I received your Pilates session request for '+formatDate(r.date)+' at '+formatTime(r.time)+'. I\'ll confirm shortly — thanks!';
   } else {
-    msg='Hi '+firstName+'! Unfortunately I\'m not available for '+formatDate(r.date)+' at '+formatTime(r.time)+'. Please feel free to request another time!';
+    msg='Hi '+fn+'! Unfortunately I\'m not available for '+formatDate(r.date)+' at '+formatTime(r.time)+'. Please feel free to request another time!';
   }
-  navigator.clipboard.writeText(msg).then(function(){ alert('Message copied to clipboard!'); }).catch(function(){ prompt('Copy this message:', msg); });
+  navigator.clipboard.writeText(msg).then(()=>alert('Message copied!')).catch(()=>prompt('Copy this:',msg));
 }
 
-// ---------- export helpers ----------
+// ---------- helpers ----------
 function pad(n){ return n.toString().padStart(2,'0'); }
-
-function formatDate(dateStr){
-  const [y,m,d] = dateStr.split('-').map(Number);
+function formatDate(ds){
+  const [y,m,d]=ds.split('-').map(Number);
   return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 }
-function formatTime(timeStr){
-  const [h,m] = timeStr.split(':').map(Number);
-  const ampm = h>=12?'PM':'AM';
-  const h12 = h%12===0?12:h%12;
+function formatTime(ts){
+  const [h,m]=ts.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM', h12=h%12===0?12:h%12;
   return h12+':'+pad(m)+' '+ampm;
 }
-function escapeHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 function downloadFile(filename,content,mime){
-  const blob = new Blob([content],{type:mime});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const blob=new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
   a.href=url; a.download=filename;
   document.body.appendChild(a); a.click();
   document.body.removeChild(a); URL.revokeObjectURL(url);
 }
-function icsDate(dateStr,timeStr){ return dateStr.replace(/-/g,'')+' T'+timeStr.replace(':','')+'00'; }
-function addMinutes(dateStr,timeStr,minutes){
-  const [y,m,d]=dateStr.split('-').map(Number);
-  const [h,min]=timeStr.split(':').map(Number);
-  const dt=new Date(y,m-1,d,h,min+minutes);
+function addMinutes(ds,ts,mins){
+  const [y,m,d]=ds.split('-').map(Number), [h,mn]=ts.split(':').map(Number);
+  const dt=new Date(y,m-1,d,h,mn+mins);
   return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';
 }
+function icsDate(ds,ts){ return ds.replace(/-/g,'')+'T'+ts.replace(':','')+'00'; }
 
 function exportICS(){
-  const list = loadRequests().filter(r=>r.status==='confirmed');
-  if(list.length===0){ alert('No confirmed sessions to export.'); return; }
+  const list=loadRequests().filter(r=>r.status==='confirmed');
+  if(!list.length){ alert('No confirmed sessions.'); return; }
   let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Pilates Scheduler//EN\r\n';
   list.forEach(r=>{
-    const start=icsDate(r.date,r.time);
-    const end=addMinutes(r.date,r.time,r.duration);
-    const equipLabel=r.equipment.map(e=>EQUIP_LABELS[e]).join(', ');
+    const eq=r.equipment.map(e=>EQUIP_LABELS[e]||e).join(', ');
     ics+='BEGIN:VEVENT\r\n';
     ics+='UID:'+r.id+'@pilates-scheduler\r\n';
     ics+='DTSTAMP:'+icsDate(r.date,r.time)+'Z\r\n';
-    ics+='DTSTART:'+start+'\r\n';
-    ics+='DTEND:'+end+'\r\n';
-    ics+='SUMMARY:Pilates Session - '+(r.clientName||'Client')+' ('+equipLabel+')\r\n';
+    ics+='DTSTART:'+icsDate(r.date,r.time)+'\r\n';
+    ics+='DTEND:'+addMinutes(r.date,r.time,SESSION_DURATION)+'\r\n';
+    ics+='SUMMARY:Pilates - '+(r.clientName||'Client')+' ('+eq+')\r\n';
     ics+='LOCATION:'+(r.format==='online'?'Online':'In Person')+'\r\n';
     ics+='DESCRIPTION:'+(r.notes||'').replace(/\n/g,' ')+'\r\n';
     ics+='END:VEVENT\r\n';
@@ -1038,20 +895,20 @@ function exportICS(){
 }
 
 function exportCSV(){
-  const list = loadRequests();
-  if(list.length===0){ alert('No requests to export.'); return; }
-  const headers=['Name','Contact','Date','Time','Duration','Format','Equipment','Status','Notes'];
+  const list=loadRequests();
+  if(!list.length){ alert('No requests to export.'); return; }
+  const headers=['Name','Contact','Date','Time','Format','Equipment','Status','Notes'];
   const rows=list.map(r=>[
     r.clientName, r.clientContact||[r.clientEmail,r.clientPhone].filter(Boolean).join(' / '),
-    r.date,r.time,r.duration,r.format,
-    r.equipment.map(e=>EQUIP_LABELS[e]).join('; '),r.status,(r.notes||'').replace(/\n/g,' ')
+    r.date, r.time, r.format,
+    r.equipment.map(e=>EQUIP_LABELS[e]||e).join('; '), r.status, (r.notes||'').replace(/\n/g,' ')
   ]);
-  const csv=[headers,...rows].map(row=>row.map(cell=>'"'+String(cell??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const csv=[headers,...rows].map(row=>row.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
   downloadFile('pilates-requests.csv',csv,'text/csv');
 }
 
 function exportJSON(){
-  downloadFile('pilates-scheduler-backup.json',JSON.stringify(loadRequests(),null,2),'application/json');
+  downloadFile('pilates-backup.json',JSON.stringify(loadRequests(),null,2),'application/json');
 }
 
 function importJSON(event){
@@ -1061,26 +918,24 @@ function importJSON(event){
     try{
       const imported=JSON.parse(e.target.result);
       if(!Array.isArray(imported)) throw new Error('Invalid file');
-      const writes=imported.map(function(r){ const copy=Object.assign({},r); delete copy.id; return requestsCollection.add(copy); });
-      Promise.all(writes).then(function(){ alert('Import complete. '+imported.length+' record(s) added.'); })
-        .catch(function(err){ alert('Some records may not have imported: '+err.message); });
-    }catch(err){ alert('Could not import file: '+err.message); }
+      Promise.all(imported.map(r=>{ const c=Object.assign({},r); delete c.id; return requestsCollection.add(c); }))
+        .then(()=>alert('Imported '+imported.length+' record(s).'))
+        .catch(err=>alert('Import error: '+err.message));
+    }catch(err){ alert('Could not import: '+err.message); }
     event.target.value='';
   };
   reader.readAsText(file);
 }
 
 // ---------- weekly calendar ----------
-let calWeekOffset = 0;
+let calWeekOffset=0;
 function calNav(dir){ calWeekOffset+=dir; renderCalendar(); }
 function calGoToday(){ calWeekOffset=0; renderCalendar(); }
-
 function getWeekStart(offset){
   const now=new Date();
-  const monday=new Date(now);
-  monday.setDate(now.getDate()-((now.getDay()+6)%7)+offset*7);
-  monday.setHours(0,0,0,0);
-  return monday;
+  const mon=new Date(now);
+  mon.setDate(now.getDate()-((now.getDay()+6)%7)+offset*7);
+  mon.setHours(0,0,0,0); return mon;
 }
 function toYMD(date){ return date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate()); }
 
@@ -1109,15 +964,13 @@ function renderCalendar(){
   days.forEach(d=>{
     const sessions=byDay[toYMD(d)];
     html+='<td>';
-    if(sessions.length===0){
+    if(!sessions.length){
       html+='<span style="color:var(--muted);font-size:11px;display:block;text-align:center;padding-top:10px;">—</span>';
     } else {
       sessions.forEach(r=>{
-        const eq=r.equipment.map(e=>EQUIP_LABELS[e]).join(', ');
-        html+='<div class="cal-session" title="'+escapeHtml(r.clientName)+' · '+r.duration+' min · '+eq+'">'+
+        html+='<div class="cal-session" title="'+escapeHtml(r.clientName)+' · 50 min">'+
           '<div class="cs-time">'+formatTime(r.time)+'</div>'+
-          '<div class="cs-name">'+escapeHtml(r.clientName||'Client')+'</div>'+
-          '<div style="font-size:10px;opacity:.8;">'+r.duration+' min</div>'+
+          '<div>'+escapeHtml(r.clientName||'Client')+'</div>'+
         '</div>';
       });
     }
