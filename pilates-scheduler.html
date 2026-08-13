@@ -191,26 +191,27 @@
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
         <h2 style="margin:0;">Requests</h2>
-        <button class="secondary small" onclick="openManualAdd()">+ Add Request Manually</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="secondary small" onclick="openManualAdd()">+ Add Request Manually</button>
+          <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
+        </div>
       </div>
       <div style="margin-bottom:12px;">
         <input type="text" id="searchBar" placeholder="Search by client name…" oninput="renderRequestList()" style="max-width:320px;">
       </div>
       <div class="filters" id="filters">
-        <button data-filter="all" class="active" onclick="setFilter('all')">All</button>
+        <button data-filter="all" class="active" onclick="setFilter('all')">Upcoming</button>
         <button data-filter="pending" onclick="setFilter('pending')">Pending</button>
         <button data-filter="confirmed" onclick="setFilter('confirmed')">Confirmed</button>
         <button data-filter="declined" onclick="setFilter('declined')">Declined</button>
         <button data-filter="cancelled" onclick="setFilter('cancelled')">Cancelled</button>
+        <button data-filter="history" onclick="setFilter('history')">History</button>
       </div>
       <div id="requestList"></div>
     </div>
 
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <h2 style="margin:0;">Practice Hours &amp; Activity</h2>
-        <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
-      </div>
+      <h2 style="margin:0 0 12px;">Practice Hours &amp; Activity</h2>
       <div class="stats-grid" id="statsGrid"></div>
     </div>
 
@@ -716,9 +717,17 @@ function statBox(num,label){
 function renderRequestList(){
   const list=loadRequests();
   const searchVal=(document.getElementById('searchBar')?.value||'').toLowerCase().trim();
-  let filtered=currentFilter==='all'?list.slice():list.filter(r=>r.status===currentFilter);
+  const todayStr=new Date().toISOString().slice(0,10);
+  let filtered;
+  if(currentFilter==='history'){
+    filtered=list.filter(r=>r.date<todayStr);
+  } else if(currentFilter==='all'){
+    filtered=list.filter(r=>r.date>=todayStr);
+  } else {
+    filtered=list.filter(r=>r.status===currentFilter&&r.date>=todayStr);
+  }
   if(searchVal) filtered=filtered.filter(r=>(r.clientName||'').toLowerCase().includes(searchVal));
-  filtered.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  filtered.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
   const container=document.getElementById('requestList');
   if(filtered.length===0){ container.innerHTML='<div class="empty">No requests here yet.</div>'; return; }
   container.innerHTML=filtered.map(r=>{
