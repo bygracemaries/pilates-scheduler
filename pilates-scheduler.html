@@ -114,6 +114,7 @@
     <button id="tab-request" class="active" onclick="showView('request')">Request a Session</button>
     <button id="tab-dashboard" onclick="showView('dashboard')">Dashboard</button>
     <button id="tab-calendar" onclick="showView('calendar')">Calendar</button>
+    <button id="tab-clients" onclick="showView('clients')">Clients</button>
   </nav>
 </header>
 
@@ -178,10 +179,25 @@
         <div class="field">
           <label>Notes (optional)</label>
           <textarea id="r_notes" placeholder="Anything Grace should know — goals, scheduling flexibility, etc."></textarea>
+          <div class="hint" style="margin-top:8px;">For <strong>group classes</strong>, please mention it in the notes above and contact Grace directly to coordinate.</div>
         </div>
 
         <button type="submit" class="primary">Submit Request</button>
       </form>
+    </div>
+  </section>
+
+  <!-- CLIENTS -->
+  <section id="view-clients" class="view">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;">Client Profiles</h2>
+        <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
+      </div>
+      <div style="margin-top:4px;margin-bottom:16px;">
+        <input type="text" id="clientSearch" placeholder="Search by name or contact…" oninput="renderClients()" style="max-width:320px;">
+      </div>
+      <div id="clientList"></div>
     </div>
   </section>
 
@@ -362,6 +378,7 @@ function startSync(){
     allRequests = snapshot.docs.map(doc=>Object.assign({id:doc.id},doc.data()));
     if(document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
     if(document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
+    if(document.getElementById('view-clients').classList.contains('active')) renderClients();
     renderSlotPicker();
   }, function(err){
     console.error(err);
@@ -400,7 +417,7 @@ document.querySelectorAll('.pill').forEach(label=>{
 
 // ---------- view switching ----------
 function showView(name){
-  if((name==='dashboard'||name==='calendar')&&!isDashboardUnlocked()){
+  if((name==='dashboard'||name==='calendar'||name==='clients')&&!isDashboardUnlocked()){
     const entered=prompt('Enter your dashboard PIN:');
     if(entered===null) return;
     if(entered!==DASHBOARD_PIN){ alert('Incorrect PIN.'); return; }
@@ -412,6 +429,7 @@ function showView(name){
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='dashboard') renderDashboard();
   if(name==='calendar') renderCalendar();
+  if(name==='clients') renderClients();
 }
 
 // ---------- availability editor ----------
@@ -535,6 +553,7 @@ function getAvailableSlotsForDate(dateStr){
   if(!Array.isArray(slots)||slots.length===0) return [];
   const cutoff = Date.now() + 24*60*60*1000;
   const confirmed = loadRequests().filter(r=>r.status==='confirmed'&&r.date===dateStr);
+  if(confirmed.length>=3) return [];
   return slots.filter(t=>{
     const [h,m]=t.split(':').map(Number);
     const [sy,smo,sd]=dateStr.split('-').map(Number);
@@ -653,6 +672,17 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
   const timeVal=document.getElementById('r_time').value;
   if(!dateVal){ alert('Please select a date.'); return; }
   if(!timeVal){ alert('Please select a time slot.'); return; }
+  const formatVal=document.querySelector('#r_format_group input:checked').value;
+  const isStudioSession=formatVal==='in-person'&&!(equipment.length===1&&equipment[0]==='mat');
+  if(isStudioSession){
+    const [sy,smo,sd]=dateVal.split('-').map(Number);
+    const [sh,sm]=timeVal.split(':').map(Number);
+    const slotMs=new Date(sy,smo-1,sd,sh,sm).getTime();
+    if(slotMs-Date.now()<48*60*60*1000){
+      alert('In-person studio sessions (non-mat equipment) require at least 48 hours notice so Grace can prepare the studio. Please choose a slot further out.');
+      return;
+    }
+  }
   const form=this;
   const req={
     clientName:document.getElementById('r_name').value.trim(),
@@ -694,6 +724,58 @@ function overlaps(a,b){
 function findConflicts(req,list){ return list.filter(o=>o.id!==req.id&&o.status==='confirmed'&&overlaps(req,o)); }
 
 function renderDashboard(){ renderStats(); renderRequestList(); renderAvailEditor(); }
+
+function renderClients(){
+  const container=document.getElementById('clientList');
+  if(!container) return;
+  const searchVal=(document.getElementById('clientSearch')?.value||'').toLowerCase().trim();
+  const list=loadRequests();
+  const map={};
+  list.forEach(r=>{
+    const key=(r.clientContact||'').trim().toLowerCase()||('name:'+((r.clientName||'').trim().toLowerCase()));
+    if(!map[key]) map[key]={name:r.clientName||'Unknown',contact:r.clientContact||'',sessions:[]};
+    if((r.clientName||'').trim()) map[key].name=r.clientName.trim();
+    map[key].sessions.push(r);
+  });
+  let profiles=Object.values(map);
+  if(searchVal) profiles=profiles.filter(p=>p.name.toLowerCase().includes(searchVal)||p.contact.toLowerCase().includes(searchVal));
+  profiles.sort((a,b)=>a.name.localeCompare(b.name));
+  if(profiles.length===0){ container.innerHTML='<div class="empty">No clients yet.</div>'; return; }
+  container.innerHTML=profiles.map(p=>{
+    const confirmed=p.sessions.filter(s=>s.status==='confirmed');
+    const pending=p.sessions.filter(s=>s.status==='pending');
+    const cancelled=p.sessions.filter(s=>s.status==='cancelled');
+    const lastSession=confirmed.sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const upcoming=confirmed.filter(s=>s.date>=new Date().toISOString().slice(0,10));
+    const sessionList=p.sessions.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;">'+
+        '<span>'+formatDate(s.date)+' at '+formatTime(s.time)+'</span>'+
+        '<span class="badge '+s.status+'" style="font-size:10px;">'+s.status+'</span>'+
+      '</div>'
+    ).join('');
+    return '<div class="request-item">'+
+      '<div class="request-top">'+
+        '<div>'+
+          '<div class="request-title">'+escapeHtml(p.name)+'</div>'+
+          (p.contact?'<div class="request-sub">'+escapeHtml(p.contact)+'</div>':'')+
+        '</div>'+
+        '<div style="text-align:right;">'+
+          '<div style="font-size:22px;font-weight:700;color:var(--sage-dark);">'+confirmed.length+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);">class'+(confirmed.length===1?'':'es')+' completed</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:12px;margin:10px 0 4px;font-size:12px;color:var(--muted);">'+
+        (upcoming.length?'<span style="color:var(--confirmed);">&#10003; '+upcoming.length+' upcoming</span>':'')+
+        (pending.length?'<span style="color:var(--pending);">'+pending.length+' pending</span>':'')+
+        (cancelled.length?'<span>'+cancelled.length+' cancelled</span>':'')+
+        (lastSession?'<span>Last: '+formatDate(lastSession.date)+'</span>':'')+
+      '</div>'+
+      '<details style="margin-top:8px;"><summary style="font-size:12px;color:var(--muted);cursor:pointer;">Session history ('+p.sessions.length+')</summary>'+
+        '<div style="margin-top:8px;">'+sessionList+'</div>'+
+      '</details>'+
+    '</div>';
+  }).join('');
+}
 
 function renderStats(){
   const list=loadRequests();
