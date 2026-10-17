@@ -235,8 +235,18 @@
       <h2>My Availability</h2>
       <p class="hint" style="margin-top:-8px;">Click a date to select it, then add your available time slots for that day. Hit Save when done.</p>
       <div id="availEditor"></div>
-      <div style="margin-top:16px;">
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
         <button class="primary" onclick="saveAvailability()">Save Availability</button>
+        <button class="secondary small" onclick="toggleImportBox()">&#8595; Import Availability</button>
+      </div>
+      <div id="importBox" style="display:none;margin-top:16px;border-top:1px solid var(--line);padding-top:16px;">
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;">Paste your availability below</p>
+        <p class="hint" style="margin-bottom:10px;">One day per line (or use semicolons). Date in MM/DD/YYYY, then times separated by commas. Example:<br><em>10/20/2026 9:00 AM, 10:00 AM, 2:00 PM<br>10/21/2026 8:00 AM, 11:00 AM</em></p>
+        <textarea id="importText" rows="6" style="width:100%;font-family:monospace;font-size:13px;" placeholder="10/20/2026 9:00 AM, 10:00 AM, 2:00 PM&#10;10/21/2026 8:00 AM, 11:00 AM"></textarea>
+        <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button class="primary" onclick="importAvailability()">Import &amp; Merge</button>
+          <span id="importStatus" style="font-size:13px;color:var(--confirmed);"></span>
+        </div>
       </div>
     </div>
 
@@ -353,6 +363,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const requestsCollection = db.collection('requests');
 const settingsDoc = db.collection('settings').doc('availability');
+const clientNotesDoc = db.collection('settings').doc('clientNotes');
 
 const EQUIP_LABELS = {mat:'Mat',reformer:'Reformer',cadillac:'Tower/Cadillac',barrel:'Barrel(s)',chair:'Chair'};
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -362,6 +373,7 @@ let currentFilter = 'all';
 const DASHBOARD_PIN = '1214';
 let allRequests = [];
 let availSettings = { dates: {} };
+let clientNotes = {};
 let slotCalOffset = 0;
 let availCalOffset = 0;
 let selectedDate = null;
@@ -396,6 +408,10 @@ function startAvailSync(){
     availSettings = {dates: cleaned};
     renderAvailEditor();
     renderSlotPicker();
+  });
+  clientNotesDoc.onSnapshot(function(doc){
+    clientNotes = doc.exists ? (doc.data()||{}) : {};
+    if(document.getElementById('view-clients').classList.contains('active')) renderClients();
   });
 }
 
@@ -545,6 +561,58 @@ function saveAvailability(){
   settingsDoc.set({dates: cleaned}).then(function(){
     alert('Availability saved!');
   }).catch(function(err){ alert('Could not save: '+err.message); });
+}
+
+function toggleImportBox(){
+  const box=document.getElementById('importBox');
+  box.style.display=box.style.display==='none'?'block':'none';
+}
+
+function parseTo24h(raw){
+  raw=raw.trim();
+  // already 24h like "14:00" or "09:00"
+  const match24=raw.match(/^(\d{1,2}):(\d{2})$/);
+  if(match24){
+    const h=parseInt(match24[1]),m=parseInt(match24[2]);
+    if(h>=0&&h<=23&&m>=0&&m<=59) return pad(h)+':'+pad(m);
+    return null;
+  }
+  // 12h like "9:00 AM", "2:00 PM", "9am", "2pm"
+  const match12=raw.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
+  if(match12){
+    let h=parseInt(match12[1]),m=parseInt(match12[2]||'0');
+    const ampm=match12[3].toLowerCase();
+    if(ampm==='pm'&&h!==12) h+=12;
+    if(ampm==='am'&&h===12) h=0;
+    if(h>=0&&h<=23&&m>=0&&m<=59) return pad(h)+':'+pad(m);
+  }
+  return null;
+}
+
+function importAvailability(){
+  const raw=document.getElementById('importText').value;
+  if(!raw.trim()){ alert('Nothing to import.'); return; }
+  // split by semicolons or newlines
+  const entries=raw.split(/[;\n]/).map(s=>s.trim()).filter(Boolean);
+  let daysAdded=0, slotsAdded=0, errors=[];
+  entries.forEach(entry=>{
+    // date is always MM/DD/YYYY (10 chars)
+    const dateMatch=entry.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(.*)/);
+    if(!dateMatch){ errors.push('Skipped: "'+entry.substring(0,30)+'"'); return; }
+    const [,mo,d,y,rest]=dateMatch;
+    const ds=y+'-'+pad(parseInt(mo))+'-'+pad(parseInt(d));
+    const times=rest.split(',').map(t=>parseTo24h(t.trim())).filter(Boolean);
+    if(times.length===0){ errors.push('No valid times for '+mo+'/'+d+'/'+y); return; }
+    if(!Array.isArray(availSettings.dates[ds])) availSettings.dates[ds]=[];
+    times.forEach(t=>{ if(!availSettings.dates[ds].includes(t)){ availSettings.dates[ds].push(t); slotsAdded++; } });
+    availSettings.dates[ds].sort();
+    daysAdded++;
+  });
+  renderAvailEditor();
+  renderSlotPicker();
+  const status=document.getElementById('importStatus');
+  status.textContent=daysAdded+' day'+(daysAdded===1?'':'s')+', '+slotsAdded+' slot'+(slotsAdded===1?'':'s')+' added. Hit Save Availability to keep.';
+  if(errors.length) console.warn('Import issues:', errors);
 }
 
 // ---------- slot picker (client side) ----------
@@ -753,6 +821,9 @@ function renderClients(){
         '<span class="badge '+s.status+'" style="font-size:10px;">'+s.status+'</span>'+
       '</div>'
     ).join('');
+    const noteKey=p.contact.toLowerCase()||('name:'+p.name.toLowerCase());
+    const savedNote=clientNotes[noteKey]||'';
+    const noteId='cnote_'+noteKey.replace(/[^a-z0-9]/g,'_');
     return '<div class="request-item">'+
       '<div class="request-top">'+
         '<div>'+
@@ -770,11 +841,26 @@ function renderClients(){
         (cancelled.length?'<span>'+cancelled.length+' cancelled</span>':'')+
         (lastSession?'<span>Last: '+formatDate(lastSession.date)+'</span>':'')+
       '</div>'+
-      '<details style="margin-top:8px;"><summary style="font-size:12px;color:var(--muted);cursor:pointer;">Session history ('+p.sessions.length+')</summary>'+
+      '<div style="margin-top:12px;">'+
+        '<label style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;display:block;">My Notes</label>'+
+        '<textarea id="'+noteId+'" rows="3" style="width:100%;font-size:13px;resize:vertical;" placeholder="Goals, injuries, preferences, progress…">'+escapeHtml(savedNote)+'</textarea>'+
+        '<button type="button" class="secondary small" style="margin-top:6px;" onclick="saveClientNote(\''+noteKey+'\',\''+noteId+'\')">Save Note</button>'+
+        '<span id="'+noteId+'_status" style="font-size:12px;color:var(--confirmed);margin-left:8px;"></span>'+
+      '</div>'+
+      '<details style="margin-top:12px;"><summary style="font-size:12px;color:var(--muted);cursor:pointer;">Session history ('+p.sessions.length+')</summary>'+
         '<div style="margin-top:8px;">'+sessionList+'</div>'+
       '</details>'+
     '</div>';
   }).join('');
+}
+
+function saveClientNote(key, inputId){
+  const text=document.getElementById(inputId)?.value||'';
+  clientNotes[key]=text;
+  clientNotesDoc.set(clientNotes).then(()=>{
+    const status=document.getElementById(inputId+'_status');
+    if(status){ status.textContent='Saved!'; setTimeout(()=>status.textContent='',2000); }
+  }).catch(err=>alert('Could not save note: '+err.message));
 }
 
 function renderStats(){
