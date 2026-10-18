@@ -809,12 +809,18 @@ function renderClients(){
   if(searchVal) profiles=profiles.filter(p=>p.name.toLowerCase().includes(searchVal)||p.contact.toLowerCase().includes(searchVal));
   profiles.sort((a,b)=>a.name.localeCompare(b.name));
   if(profiles.length===0){ container.innerHTML='<div class="empty">No clients yet.</div>'; return; }
+  const todayStr=new Date().toISOString().slice(0,10);
+  const MILESTONES=[5,10,25,50,100];
   container.innerHTML=profiles.map(p=>{
     const confirmed=p.sessions.filter(s=>s.status==='confirmed');
     const pending=p.sessions.filter(s=>s.status==='pending');
     const cancelled=p.sessions.filter(s=>s.status==='cancelled');
-    const lastSession=confirmed.sort((a,b)=>b.date.localeCompare(a.date))[0];
-    const upcoming=confirmed.filter(s=>s.date>=new Date().toISOString().slice(0,10));
+    const lastSession=confirmed.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const upcoming=confirmed.filter(s=>s.date>=todayStr);
+    // milestone: sort all confirmed chronologically, find if any upcoming one lands on a milestone number
+    const chronological=confirmed.slice().sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    let milestone=null;
+    chronological.forEach((s,i)=>{ if(MILESTONES.includes(i+1)&&s.date>=todayStr) milestone=i+1; });
     const sessionList=p.sessions.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>
       '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;">'+
         '<span>'+formatDate(s.date)+' at '+formatTime(s.time)+'</span>'+
@@ -827,7 +833,7 @@ function renderClients(){
     return '<div class="request-item">'+
       '<div class="request-top">'+
         '<div>'+
-          '<div class="request-title">'+escapeHtml(p.name)+'</div>'+
+          '<div class="request-title">'+escapeHtml(p.name)+(milestone?(()=>{const s=milestone===1?'st':milestone===2?'nd':milestone===3?'rd':'th';return '&nbsp;<span title="Milestone class!" style="display:inline-flex;align-items:center;gap:3px;background:#fff8e1;border:1px solid #f0c040;border-radius:12px;padding:2px 8px;font-size:12px;font-weight:700;color:#b8860b;">&#11088; '+milestone+s+' class</span>';})():'')+'</div>'+
           (p.contact?'<div class="request-sub">'+escapeHtml(p.contact)+'</div>':'')+
         '</div>'+
         '<div style="text-align:right;">'+
