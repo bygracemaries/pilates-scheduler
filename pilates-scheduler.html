@@ -157,6 +157,33 @@
         </div>
 
         <div class="field">
+          <label>Class Type</label>
+          <div class="checkbox-group" id="r_classtype_group" style="flex-direction:column;gap:8px;">
+            <label class="pill" style="border-radius:8px;padding:10px 14px;">
+              <input type="radio" name="classtype" value="foundational" checked>
+              <strong>Foundational</strong> — Covers the basics of Pilates with a whole-body approach. Perfect for beginners or anyone returning to movement.
+            </label>
+            <label class="pill" style="border-radius:8px;padding:10px 14px;">
+              <input type="radio" name="classtype" value="progressive">
+              <strong>Progressive</strong> — Builds on the fundamentals with more complex variations and sequences. Can include upper-body + core or lower-body + core focus — mention your preference in the notes.
+            </label>
+            <label class="pill" style="border-radius:8px;padding:10px 14px;">
+              <input type="radio" name="classtype" value="advanced">
+              <strong>Advanced</strong> — For clients with 15+ classes and instructor approval. Covers advanced Pilates movements and challenging variations.
+            </label>
+            <label class="pill" style="border-radius:8px;padding:10px 14px;">
+              <input type="radio" name="classtype" value="jumpboard">
+              <strong>Jumpboard</strong> <em>(Reformer only)</em> — Adds cardio through jumpboard movements on the Reformer. Fun, dynamic, and low-impact.
+            </label>
+            <label class="pill" style="border-radius:8px;padding:10px 14px;">
+              <input type="radio" name="classtype" value="restore">
+              <strong>Restore</strong> — A gentle, stretch-focused session for recovery and release. Great after high-activity days or whenever your body needs to slow down.
+            </label>
+          </div>
+          <div id="advancedWarning" style="display:none;margin-top:8px;" class="hint">&#9888;&#65039; Advanced classes require 15+ completed classes and instructor approval. Grace will confirm eligibility before approving your request.</div>
+        </div>
+
+        <div class="field">
           <label>Format</label>
           <div class="radio-group" id="r_format_group">
             <label class="pill"><input type="radio" name="format" value="online"> Online</label>
@@ -309,6 +336,16 @@
         </div>
       </div>
       <div class="field">
+        <label>Class Type</label>
+        <select id="m_classtype">
+          <option value="foundational">Foundational</option>
+          <option value="progressive">Progressive</option>
+          <option value="advanced">Advanced</option>
+          <option value="jumpboard">Jumpboard (Reformer only)</option>
+          <option value="restore">Restore</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Format</label>
         <div class="radio-group" id="m_format_group">
           <label class="pill"><input type="radio" name="mformat" value="online"> Online</label>
@@ -366,6 +403,7 @@ const settingsDoc = db.collection('settings').doc('availability');
 const clientNotesDoc = db.collection('settings').doc('clientNotes');
 
 const EQUIP_LABELS = {mat:'Mat',reformer:'Reformer',cadillac:'Tower/Cadillac',barrel:'Barrel(s)',chair:'Chair'};
+const CLASS_TYPE_LABELS = {foundational:'Foundational',progressive:'Progressive',advanced:'Advanced',jumpboard:'Jumpboard',restore:'Restore'};
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const SESSION_DURATION = 50;
 
@@ -734,8 +772,10 @@ function selectSlotTime(t){
 // ---------- request form ----------
 document.getElementById('requestForm').addEventListener('submit',function(e){
   e.preventDefault();
+  const classType=document.querySelector('#r_classtype_group input:checked')?.value||'foundational';
   const equipment=Array.from(document.querySelectorAll('#r_equipment_group input:checked')).map(i=>i.value);
   if(equipment.length===0){ alert('Please select at least one equipment type.'); return; }
+  if(classType==='jumpboard'&&!equipment.includes('reformer')){ alert('Jumpboard classes require the Reformer. Please select Reformer under equipment.'); return; }
   const dateVal=document.getElementById('r_date').value;
   const timeVal=document.getElementById('r_time').value;
   if(!dateVal){ alert('Please select a date.'); return; }
@@ -757,6 +797,7 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
     clientContact:document.getElementById('r_contact').value.trim(),
     date:dateVal, time:timeVal,
     duration:SESSION_DURATION,
+    classType,
     format:document.querySelector('#r_format_group input:checked').value,
     equipment, notes:document.getElementById('r_notes').value.trim(),
     status:'pending', createdAt:new Date().toISOString()
@@ -823,7 +864,7 @@ function renderClients(){
     chronological.forEach((s,i)=>{ if(MILESTONES.includes(i+1)&&s.date>=todayStr) milestone=i+1; });
     const sessionList=p.sessions.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>
       '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;">'+
-        '<span>'+formatDate(s.date)+' at '+formatTime(s.time)+'</span>'+
+        '<span>'+formatDate(s.date)+' at '+formatTime(s.time)+(s.classType&&CLASS_TYPE_LABELS[s.classType]?' &middot; '+CLASS_TYPE_LABELS[s.classType]:'')+'</span>'+
         '<span class="badge '+s.status+'" style="font-size:10px;">'+s.status+'</span>'+
       '</div>'
     ).join('');
@@ -907,6 +948,7 @@ function renderRequestList(){
   container.innerHTML=filtered.map(r=>{
     const conflicts=r.status==='pending'?findConflicts(r,list):[];
     const equipTags=r.equipment.map(e=>'<span class="tag">'+(EQUIP_LABELS[e]||e)+'</span>').join('');
+    const classTypeLabel=CLASS_TYPE_LABELS[r.classType]||'';
     const dateLabel=formatDate(r.date)+' at '+formatTime(r.time)+' &middot; 50 min (1 hr)';
     const contact=r.clientContact||[r.clientEmail,r.clientPhone].filter(Boolean).join(' / ');
     let actions='';
@@ -930,7 +972,7 @@ function renderRequestList(){
       '<div class="request-top">'+
         '<div>'+
           '<div class="request-title">'+escapeHtml(r.clientName||'Unnamed')+'</div>'+
-          '<div class="request-sub">'+dateLabel+' &middot; '+(r.format==='online'?'Online':'In Person')+'</div>'+
+          '<div class="request-sub">'+dateLabel+' &middot; '+(r.format==='online'?'Online':'In Person')+(classTypeLabel?' &middot; '+classTypeLabel:'')+'</div>'+
           (contact?'<div class="request-sub">'+escapeHtml(contact)+'</div>':'')+
         '</div>'+
         '<span class="badge '+r.status+'">'+r.status+'</span>'+
@@ -980,6 +1022,7 @@ function openEdit(id){
   document.getElementById('m_contact').value=r.clientContact||[r.clientEmail,r.clientPhone].filter(Boolean).join(' / ');
   document.getElementById('m_date').value=r.date;
   document.getElementById('m_time').value=r.time;
+  document.getElementById('m_classtype').value=r.classType||'foundational';
   document.getElementById('m_status').value=r.status;
   document.getElementById('m_notes').value=r.notes||'';
   document.querySelector('#m_format_group input[value="'+r.format+'"]').checked=true;
@@ -1002,6 +1045,7 @@ document.getElementById('manualForm').addEventListener('submit',function(e){
     date:document.getElementById('m_date').value,
     time:document.getElementById('m_time').value,
     duration:SESSION_DURATION,
+    classType:document.getElementById('m_classtype').value,
     format:document.querySelector('#m_format_group input:checked').value,
     equipment,
     status:document.getElementById('m_status').value,
@@ -1028,8 +1072,9 @@ function copyMsg(id){
   const eq=r.equipment.map(e=>EQUIP_LABELS[e]||e).join(', ');
   const fn=(r.clientName||'').split(' ')[0];
   let msg='';
+  const ct=CLASS_TYPE_LABELS[r.classType]||'';
   if(r.status==='confirmed'){
-    msg='Hi '+fn+'! Your Pilates session is confirmed for '+formatDate(r.date)+' at '+formatTime(r.time)+
+    msg='Hi '+fn+'! Your '+(ct?ct+' ':'')+' Pilates session is confirmed for '+formatDate(r.date)+' at '+formatTime(r.time)+
       ' ('+(r.format==='online'?'online':'in person')+', '+eq+'). See you then!';
   } else if(r.status==='pending'){
     msg='Hi '+fn+'! I received your Pilates session request for '+formatDate(r.date)+' at '+formatTime(r.time)+'. I\'ll confirm shortly — thanks!';
