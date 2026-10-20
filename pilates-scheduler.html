@@ -597,7 +597,7 @@ function importAvailability(){
   let daysAdded=0, slotsAdded=0, errors=[];
   entries.forEach(entry=>{
     // date is always MM/DD/YYYY (10 chars)
-    const dateMatch=entry.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(.*)/);
+    const dateMatch=entry.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[:\s]\s*(.*)/);
     if(!dateMatch){ errors.push('Skipped: "'+entry.substring(0,30)+'"'); return; }
     const [,mo,d,y,rest]=dateMatch;
     const ds=y+'-'+pad(parseInt(mo))+'-'+pad(parseInt(d));
