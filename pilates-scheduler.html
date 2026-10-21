@@ -498,7 +498,7 @@ function renderAvailEditor(){
   const y = target.getFullYear(), mo = target.getMonth();
   const daysInMonth = new Date(y,mo+1,0).getDate();
   const firstDow = new Date(y,mo,1).getDay();
-  const startOffset = (firstDow+6)%7;
+  const startOffset = firstDow;
   const today = new Date(); today.setHours(0,0,0,0);
   const dates = availSettings.dates||{};
 
@@ -510,7 +510,7 @@ function renderAvailEditor(){
 
   // calendar grid
   html += '<table class="slot-cal-table"><thead><tr>';
-  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(n=>{ html+='<th>'+n+'</th>'; });
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(n=>{ html+='<th>'+n+'</th>'; });
   html += '</tr></thead><tbody><tr>';
   for(let i=0;i<startOffset;i++) html+='<td></td>';
   let col=startOffset;
@@ -657,7 +657,7 @@ function importAvailability(){
 function getAvailableSlotsForDate(dateStr){
   const slots = (availSettings.dates||{})[dateStr];
   if(!Array.isArray(slots)||slots.length===0) return [];
-  const cutoff = Date.now() + 24*60*60*1000;
+  const cutoff = Date.now() + 48*60*60*1000;
   const confirmed = loadRequests().filter(r=>r.status==='confirmed'&&r.date===dateStr);
   if(confirmed.length>=3) return [];
   return slots.filter(t=>{
@@ -705,11 +705,11 @@ function renderSlotPicker(){
 
   const daysInMonth=new Date(y,mo+1,0).getDate();
   const firstDow=new Date(y,mo,1).getDay();
-  const startOffset=(firstDow+6)%7;
+  const startOffset=firstDow;
   const today=new Date(); today.setHours(0,0,0,0);
 
   let html='<table class="slot-cal-table"><thead><tr>';
-  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(n=>{ html+='<th>'+n+'</th>'; });
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(n=>{ html+='<th>'+n+'</th>'; });
   html+='</tr></thead><tbody><tr>';
   for(let i=0;i<startOffset;i++) html+='<td></td>';
   let col=startOffset;
@@ -781,16 +781,6 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
   if(!dateVal){ alert('Please select a date.'); return; }
   if(!timeVal){ alert('Please select a time slot.'); return; }
   const formatVal=document.querySelector('#r_format_group input:checked').value;
-  const isStudioSession=formatVal==='in-person'&&!(equipment.length===1&&equipment[0]==='mat');
-  if(isStudioSession){
-    const [sy,smo,sd]=dateVal.split('-').map(Number);
-    const [sh,sm]=timeVal.split(':').map(Number);
-    const slotMs=new Date(sy,smo-1,sd,sh,sm).getTime();
-    if(slotMs-Date.now()<48*60*60*1000){
-      alert('In-person studio sessions (non-mat equipment) require at least 48 hours notice so Grace can prepare the studio. Please choose a slot further out.');
-      return;
-    }
-  }
   const form=this;
   const req={
     clientName:document.getElementById('r_name').value.trim(),
