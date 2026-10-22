@@ -113,8 +113,8 @@
   <nav>
     <button id="tab-request" class="active" onclick="showView('request')">Request a Session</button>
     <button id="tab-dashboard" onclick="showView('dashboard')">Dashboard</button>
-    <button id="tab-calendar" onclick="showView('calendar')">Calendar</button>
-    <button id="tab-clients" onclick="showView('clients')">Clients</button>
+    <button id="tab-calendar" onclick="showView('calendar')" style="display:none;">Calendar</button>
+    <button id="tab-clients" onclick="showView('clients')" style="display:none;">Clients</button>
   </nav>
 </header>
 
@@ -420,7 +420,12 @@ let availSelectedDate = null; // date selected in avail editor
 
 // ---------- auth ----------
 function isDashboardUnlocked(){ return sessionStorage.getItem('dashboardUnlocked')==='true'; }
-function lockDashboard(){ sessionStorage.removeItem('dashboardUnlocked'); showView('request'); }
+function lockDashboard(){
+  sessionStorage.removeItem('dashboardUnlocked');
+  document.getElementById('tab-calendar').style.display='none';
+  document.getElementById('tab-clients').style.display='none';
+  showView('request');
+}
 
 // ---------- firestore ----------
 function startSync(){
@@ -476,6 +481,8 @@ function showView(name){
     if(entered===null) return;
     if(entered!==DASHBOARD_PIN){ alert('Incorrect PIN.'); return; }
     sessionStorage.setItem('dashboardUnlocked','true');
+    document.getElementById('tab-calendar').style.display='';
+    document.getElementById('tab-clients').style.display='';
   }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
