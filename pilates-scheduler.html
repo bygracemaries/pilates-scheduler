@@ -410,7 +410,7 @@ const SESSION_DURATION = 50;
 let currentFilter = 'all';
 const DASHBOARD_PIN = '1214';
 let allRequests = [];
-let availSettings = { dates: {} };
+let availSettings = { dates: {}, slotFormats: {}, bookingNoticeHours: 48 };
 let clientNotes = {};
 let slotCalOffset = 0;
 let availCalOffset = 0;
@@ -448,7 +448,11 @@ function startAvailSync(){
     Object.entries(raw.dates||{}).forEach(([ds,v])=>{
       if(Array.isArray(v) && v.length>0) cleaned[ds]=v;
     });
-    availSettings = {dates: cleaned};
+    availSettings = {
+      dates: cleaned,
+      slotFormats: raw.slotFormats||{},
+      bookingNoticeHours: (raw.bookingNoticeHours!=null ? raw.bookingNoticeHours : 48)
+    };
     renderAvailEditor();
     renderSlotPicker();
   });
@@ -509,7 +513,16 @@ function renderAvailEditor(){
   const today = new Date(); today.setHours(0,0,0,0);
   const dates = availSettings.dates||{};
 
-  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'+
+  const noticeVal=availSettings.bookingNoticeHours!=null?availSettings.bookingNoticeHours:48;
+  let html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">'+
+    '<label style="font-size:13px;font-weight:600;color:var(--ink);">Booking notice:</label>'+
+    '<select id="bookingNoticeSelect" style="padding:5px 8px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:var(--surface);">'+
+      '<option value="0"'+(noticeVal===0?' selected':'')+'>None (book anytime)</option>'+
+      '<option value="24"'+(noticeVal===24?' selected':'')+'>24 hours</option>'+
+      '<option value="48"'+(noticeVal===48?' selected':'')+'>48 hours</option>'+
+    '</select>'+
+  '</div>'+
+  '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'+
     '<button type="button" class="secondary small" onclick="availCalNav(-1)">&#8592;</button>'+
     '<span style="font-weight:600;font-size:14px;flex:1;text-align:center;">'+MONTH_NAMES[mo]+' '+y+'</span>'+
     '<button type="button" class="secondary small" onclick="availCalNav(1)">&#8594;</button>'+
@@ -552,7 +565,11 @@ function renderAvailEditor(){
       html+='<span style="color:var(--muted);font-size:13px;">No time slots yet — add one below.</span>';
     } else {
       slots.forEach(t=>{
-        html+='<span class="time-chip">'+formatTime(t)+
+        const fmt=getSlotFormat(availSelectedDate,t);
+        const fmtLabel=fmt==='online'?'🌐 Online only':fmt==='in-person'?'🏢 In-person only':'🔄 Both';
+        const nextFmt=fmt==='both'?'online':fmt==='online'?'in-person':'both';
+        html+='<span class="time-chip" style="gap:4px;">'+formatTime(t)+
+          '<button type="button" onclick="setSlotFormat(\''+availSelectedDate+'\',\''+t+'\',\''+nextFmt+'\')" title="Toggle format" style="font-size:11px;padding:1px 5px;border-radius:4px;background:var(--line);border:none;cursor:pointer;color:var(--ink);">'+fmtLabel+'</button>'+
           '<button type="button" onclick="removeSlot(\''+availSelectedDate+'\',\''+t+'\')" title="Remove">&#x2715;</button>'+
           '</span>';
       });
@@ -603,9 +620,28 @@ function saveAvailability(){
   Object.entries(availSettings.dates||{}).forEach(([ds,v])=>{
     if(Array.isArray(v) && v.length>0) cleaned[ds]=v;
   });
-  settingsDoc.set({dates: cleaned}).then(function(){
+  const noticeEl=document.getElementById('bookingNoticeSelect');
+  if(noticeEl) availSettings.bookingNoticeHours=parseInt(noticeEl.value);
+  settingsDoc.set({
+    dates: cleaned,
+    slotFormats: availSettings.slotFormats||{},
+    bookingNoticeHours: availSettings.bookingNoticeHours
+  }).then(function(){
     alert('Availability saved!');
   }).catch(function(err){ alert('Could not save: '+err.message); });
+}
+
+function setSlotFormat(ds, t, fmt){
+  if(!availSettings.slotFormats) availSettings.slotFormats={};
+  if(!availSettings.slotFormats[ds]) availSettings.slotFormats[ds]={};
+  if(fmt==='both'){ delete availSettings.slotFormats[ds][t]; }
+  else { availSettings.slotFormats[ds][t]=fmt; }
+  renderAvailEditor();
+  renderSlotPicker();
+}
+
+function getSlotFormat(ds, t){
+  return (availSettings.slotFormats||{})[ds]?.[t]||'both';
 }
 
 function toggleImportBox(){
@@ -664,7 +700,7 @@ function importAvailability(){
 function getAvailableSlotsForDate(dateStr){
   const slots = (availSettings.dates||{})[dateStr];
   if(!Array.isArray(slots)||slots.length===0) return [];
-  const cutoff = Date.now() + 48*60*60*1000;
+  const cutoff = Date.now() + (availSettings.bookingNoticeHours||0)*60*60*1000;
   const confirmed = loadRequests().filter(r=>r.status==='confirmed'&&r.date===dateStr);
   if(confirmed.length>=3) return [];
   return slots.filter(t=>{
@@ -746,6 +782,7 @@ function selectSlotDate(ds){
   document.getElementById('r_date').value=ds;
   document.getElementById('r_time').value='';
   document.getElementById('r_slot_display').textContent='';
+  document.querySelectorAll('#r_format_group input[type=radio]').forEach(r=>{ r.disabled=false; });
   renderSlotPicker();
 }
 
@@ -761,7 +798,9 @@ function renderTimeSlots(){
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;">';
   slots.forEach(t=>{
     const isSel=t===selectedTime;
-    html+='<button type="button" class="slot-time-btn'+(isSel?' selected':'')+'" onclick="selectSlotTime(\''+t+'\')">'+formatTime(t)+' &middot; 50 min</button>';
+    const fmt=getSlotFormat(selectedDate,t);
+    const fmtTag=fmt==='online'?' <span style="font-size:10px;opacity:.8;">Online only</span>':fmt==='in-person'?' <span style="font-size:10px;opacity:.8;">In-person only</span>':'';
+    html+='<button type="button" class="slot-time-btn'+(isSel?' selected':'')+'" onclick="selectSlotTime(\''+t+'\')">'+formatTime(t)+' &middot; 50 min'+fmtTag+'</button>';
   });
   html+='</div>';
   container.innerHTML=html;
@@ -773,6 +812,13 @@ function selectSlotTime(t){
   const [y,m,d]=selectedDate.split('-').map(Number);
   const dayLabel=new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
   document.getElementById('r_slot_display').textContent='Selected: '+dayLabel+' at '+formatTime(t);
+  // lock format radio if slot has a restriction
+  const fmt=getSlotFormat(selectedDate,t);
+  const fmtRadios=document.querySelectorAll('#r_format_group input[type=radio]');
+  fmtRadios.forEach(r=>{
+    if(fmt==='both'){ r.disabled=false; }
+    else { r.disabled=(r.value!==fmt); if(r.value===fmt){ r.checked=true; r.closest('.pill').classList.add('checked'); } else { r.closest('.pill').classList.remove('checked'); } }
+  });
   renderSlotPicker();
 }
 
@@ -788,6 +834,11 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
   if(!dateVal){ alert('Please select a date.'); return; }
   if(!timeVal){ alert('Please select a time slot.'); return; }
   const formatVal=document.querySelector('#r_format_group input:checked').value;
+  const slotFmt=getSlotFormat(dateVal,timeVal);
+  if(slotFmt!=='both'&&formatVal!==slotFmt){
+    alert('This time slot is '+slotFmt+' only. Please select the correct format.');
+    return;
+  }
   const form=this;
   const req={
     clientName:document.getElementById('r_name').value.trim(),
