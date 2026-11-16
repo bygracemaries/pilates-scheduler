@@ -828,6 +828,7 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
   const classType=document.querySelector('#r_classtype_group input:checked')?.value||'foundational';
   const equipment=Array.from(document.querySelectorAll('#r_equipment_group input:checked')).map(i=>i.value);
   if(equipment.length===0){ alert('Please select at least one equipment type.'); return; }
+  if(equipment.length>2){ alert('Please select up to 2 pieces of equipment. Grace can adjust this after booking if needed.'); return; }
   if(classType==='jumpboard'&&!equipment.includes('reformer')){ alert('Jumpboard classes require the Reformer. Please select Reformer under equipment.'); return; }
   const dateVal=document.getElementById('r_date').value;
   const timeVal=document.getElementById('r_time').value;
