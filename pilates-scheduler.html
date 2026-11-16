@@ -478,6 +478,25 @@ document.querySelectorAll('.pill').forEach(label=>{
   sync();
 });
 
+// ---------- equipment 2-max ----------
+(function(){
+  const group=document.getElementById('r_equipment_group');
+  if(!group) return;
+  function updateEquipLimit(){
+    const inputs=Array.from(group.querySelectorAll('input[type=checkbox]'));
+    const checkedCount=inputs.filter(i=>i.checked).length;
+    inputs.forEach(i=>{
+      if(!i.checked){
+        i.disabled=checkedCount>=2;
+        i.closest('.pill').style.opacity=checkedCount>=2?'0.4':'';
+        i.closest('.pill').style.cursor=checkedCount>=2?'not-allowed':'';
+      }
+    });
+  }
+  group.addEventListener('change', updateEquipLimit);
+  updateEquipLimit();
+})();
+
 // ---------- view switching ----------
 function showView(name){
   if((name==='dashboard'||name==='calendar'||name==='clients')&&!isDashboardUnlocked()){
