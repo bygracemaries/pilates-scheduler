@@ -334,10 +334,17 @@
       <strong>Acknowledgment</strong><br><br>
       I have read this liability waiver and fully understand its terms. I acknowledge that I am signing freely and voluntarily and intend my agreement to be a complete and unconditional release of all liability to the greatest extent allowed by law.
     </div>
-    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px;">
+    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:16px;">
       <input type="checkbox" id="waiverModalCheck" style="margin-top:3px;flex-shrink:0;">
       <span style="font-size:13px;">I have read and agree to the Liability Waiver &amp; Health Acknowledgment above.</span>
     </label>
+    <div style="margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <label style="font-size:13px;font-weight:600;">Signature <span style="font-weight:400;color:var(--muted);">(draw below)</span></label>
+        <button type="button" class="secondary small" onclick="clearSignature()">Clear</button>
+      </div>
+      <canvas id="signatureCanvas" width="460" height="120" style="border:1px solid var(--line);border-radius:8px;background:#fafafa;width:100%;touch-action:none;cursor:crosshair;display:block;"></canvas>
+    </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button type="button" class="secondary" onclick="closeWaiverModal()">Cancel</button>
       <button type="button" class="primary" onclick="confirmWaiver()">Agree &amp; Sign</button>
@@ -422,6 +429,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBOaJBShRHgL5bU790_sbJJRhZNBcwuRnQ",
@@ -907,6 +915,7 @@ function openWaiverModal(){
   document.getElementById('waiverModalCheck').checked=false;
   document.getElementById('waiverModal').style.display='block';
   document.body.style.overflow='hidden';
+  setTimeout(()=>{ initSigCanvas(); clearSignature(); },50);
 }
 
 function closeWaiverModal(){
@@ -914,14 +923,102 @@ function closeWaiverModal(){
   document.body.style.overflow='';
 }
 
+// ---------- signature canvas ----------
+let sigCanvas=null, sigCtx=null, sigDrawing=false, sigHasStrokes=false;
+let capturedSignature='';
+
+function initSigCanvas(){
+  sigCanvas=document.getElementById('signatureCanvas');
+  if(!sigCanvas||sigCanvas._inited) return;
+  sigCanvas._inited=true;
+  sigCtx=sigCanvas.getContext('2d');
+  sigCtx.strokeStyle='#1a1a1a'; sigCtx.lineWidth=2; sigCtx.lineCap='round'; sigCtx.lineJoin='round';
+
+  function pos(e){
+    const r=sigCanvas.getBoundingClientRect();
+    const scaleX=sigCanvas.width/r.width, scaleY=sigCanvas.height/r.height;
+    const src=e.touches?e.touches[0]:e;
+    return {x:(src.clientX-r.left)*scaleX, y:(src.clientY-r.top)*scaleY};
+  }
+  function start(e){ e.preventDefault(); sigDrawing=true; const p=pos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); }
+  function move(e){ e.preventDefault(); if(!sigDrawing) return; const p=pos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigHasStrokes=true; }
+  function end(e){ e.preventDefault(); sigDrawing=false; }
+
+  sigCanvas.addEventListener('mousedown',start); sigCanvas.addEventListener('mousemove',move);
+  sigCanvas.addEventListener('mouseup',end); sigCanvas.addEventListener('mouseleave',end);
+  sigCanvas.addEventListener('touchstart',start,{passive:false}); sigCanvas.addEventListener('touchmove',move,{passive:false});
+  sigCanvas.addEventListener('touchend',end);
+}
+
+function clearSignature(){
+  if(!sigCtx) return;
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  sigHasStrokes=false; capturedSignature='';
+}
+
 function confirmWaiver(){
   if(!document.getElementById('waiverModalCheck').checked){
     alert('Please check the box to agree to the waiver.');
     return;
   }
+  if(!sigHasStrokes){
+    alert('Please draw your signature before agreeing.');
+    return;
+  }
+  capturedSignature=sigCanvas.toDataURL('image/png');
   waiverSignedThisSession=true;
   closeWaiverModal();
   updateWaiverStatus();
+}
+
+// ---------- waiver PDF ----------
+function downloadWaiverPDF(clientName, clientContact){
+  const key=clientContact.trim().toLowerCase();
+  const recs=allRequests.filter(r=>(r.clientContact||'').toLowerCase()===key&&r.waiverSignature);
+  if(recs.length===0){ alert('No signed waiver on file for this client.'); return; }
+  recs.sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+  const rec=recs[0];
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const margin=20, pw=doc.internal.pageSize.getWidth(), cw=pw-2*margin;
+  let y=margin;
+
+  function nl(extra=0){ y+=extra; if(y>270){doc.addPage();y=margin;} }
+  function heading(txt,sz=13){ doc.setFont('helvetica','bold'); doc.setFontSize(sz); doc.text(txt,margin,y); nl(sz*0.45+2); }
+  function body(txt,sz=10){ doc.setFont('helvetica','normal'); doc.setFontSize(sz); doc.splitTextToSize(txt,cw).forEach(l=>{ if(y>275){doc.addPage();y=margin;} doc.text(l,margin,y); y+=sz*0.42+1; }); nl(3); }
+
+  heading('Liability Waiver and Release of Claims',15); nl(1);
+  heading('Grace Santos',11); nl(2);
+  heading('Participant Information',11);
+  body('Name: '+clientName);
+  body('Contact: '+clientContact); nl(2);
+
+  heading('Assumption of Risk');
+  body('I understand that participation in Pilates and any other fitness activities with Grace Santos involves physical activity that may pose risks, including but not limited to physical injury, strains, sprains, and in rare cases, more serious injuries. I understand that these risks may be the result of my own actions, inactions, or negligence, or the actions, inactions, or negligence of Grace Santos.');
+  body('I voluntarily elect to participate in Pilates sessions with Grace Santos. I acknowledge that I am in good physical health, have no medical condition that would prevent my participation, and that I have consulted with a healthcare provider if necessary. I agree to inform Grace of any changes to my health status before each session.');
+
+  heading('Instructor in Training');
+  body('I understand and accept that Grace Santos is a Pilates instructor currently completing her certification training. I acknowledge that she is developing her professional skills and may refine her instruction approach over time.');
+
+  heading('Release of Liability');
+  body('In consideration of being allowed to participate in Pilates sessions, I hereby release, waive, discharge, and covenant not to sue Grace Santos from any and all claims, demands, actions, or causes of action of any kind, including those for personal injury, death, property damage, or loss, arising out of or related to my participation. This release includes claims arising from the negligence of Grace Santos.');
+
+  heading('Indemnification');
+  body('I agree to indemnify and hold harmless Grace Santos from any and all claims, actions, or demands brought by any third party, including attorneys\' fees, resulting from my participation in Pilates sessions, whether resulting from negligence or any other cause.');
+
+  heading('Medical Consent');
+  body('In the event of an emergency, I authorize Grace Santos to seek medical attention on my behalf if I am unable to provide consent at the time of the emergency. I understand that I am responsible for all costs related to any medical treatment and transportation.');
+
+  heading('Acknowledgment');
+  body('I have read this liability waiver and fully understand its terms. I acknowledge that I am signing freely and voluntarily and intend my agreement to be a complete and unconditional release of all liability to the greatest extent allowed by law.');
+
+  nl(4);
+  if(y>230){ doc.addPage(); y=margin; }
+  heading('Signature');
+  doc.addImage(rec.waiverSignature,'PNG',margin,y,80,30); y+=34;
+  body('Signed electronically on: '+new Date(rec.waiverDate).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}));
+
+  doc.save('waiver-'+clientName.trim().replace(/\s+/g,'-').toLowerCase()+'.pdf');
 }
 
 document.getElementById('r_contact').addEventListener('input', updateWaiverStatus);
@@ -954,7 +1051,7 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
     classType,
     format:document.querySelector('#r_format_group input:checked').value,
     equipment, notes:document.getElementById('r_notes').value.trim(),
-    waiverAgreed:true, waiverDate:new Date().toISOString(),
+    waiverAgreed:true, waiverDate:new Date().toISOString(), waiverSignature:capturedSignature,
     status:'pending', createdAt:new Date().toISOString()
   };
   requestsCollection.add(req).then(function(){
@@ -1051,6 +1148,16 @@ function renderClients(){
         '<button type="button" class="secondary small" style="margin-top:6px;" onclick="saveClientNote(\''+noteKey+'\',\''+noteId+'\')">Save Note</button>'+
         '<span id="'+noteId+'_status" style="font-size:12px;color:var(--confirmed);margin-left:8px;"></span>'+
       '</div>'+
+      (()=>{
+        const waiverRec=p.sessions.find(s=>s.waiverSignature);
+        const waiverDate=waiverRec?new Date(waiverRec.waiverDate).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):'';
+        return waiverRec
+          ? '<div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+
+              '<span style="font-size:12px;color:var(--confirmed);">&#10003; Waiver signed '+waiverDate+'</span>'+
+              '<button type="button" class="secondary small" onclick="downloadWaiverPDF(\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\',\''+p.contact.replace(/'/g,"\\'")+'\')">Download Waiver PDF</button>'+
+            '</div>'
+          : '<div style="margin-top:10px;font-size:12px;color:var(--muted);">No signed waiver on file.</div>';
+      })()+
       '<details style="margin-top:12px;"><summary style="font-size:12px;color:var(--muted);cursor:pointer;">Session history ('+p.sessions.length+')</summary>'+
         '<div style="margin-top:8px;">'+sessionList+'</div>'+
       '</details>'+
