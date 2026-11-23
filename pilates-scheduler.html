@@ -136,6 +136,7 @@
             <input type="text" id="r_contact" placeholder="Either one is fine" required>
           </div>
         </div>
+        <div class="hint" style="margin-bottom:4px;">Please use the same name and contact info every time you book — this keeps your session history and profile up to date.</div>
 
         <div class="field">
           <label>Select a Date &amp; Time</label>
@@ -207,6 +208,10 @@
           <label>Notes (optional)</label>
           <textarea id="r_notes" placeholder="Anything Grace should know — goals, scheduling flexibility, etc."></textarea>
           <div class="hint" style="margin-top:8px;">For <strong>group classes</strong>, please mention it in the notes above and contact Grace directly to coordinate.</div>
+        </div>
+
+        <div class="field" style="margin-top:8px;">
+          <div id="waiverStatus"></div>
         </div>
 
         <button type="submit" class="primary">Submit Request</button>
@@ -308,6 +313,37 @@
   </section>
 
 </main>
+
+<!-- WAIVER MODAL -->
+<div id="waiverModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch;" onclick="if(event.target===this)closeWaiverModal();">
+  <div style="background:#fff;border-radius:14px;max-width:520px;margin:32px auto;padding:28px 24px;box-shadow:0 8px 40px rgba(0,0,0,0.3);position:relative;">
+    <h3 style="margin:0 0 4px;">Liability Waiver &amp; Health Acknowledgment</h3>
+    <p style="font-size:12.5px;color:var(--muted);margin:0 0 14px;">Please read carefully before agreeing.</p>
+    <div style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:12.5px;color:var(--ink);line-height:1.7;max-height:340px;overflow-y:auto;margin-bottom:16px;">
+      <strong>Assumption of Risk</strong><br><br>
+      I understand that participation in Pilates and any other fitness activities with Grace Santos involves physical activity that may pose risks, including but not limited to physical injury, strains, sprains, and in rare cases, more serious injuries. I understand that these risks may be the result of my own actions, inactions, or negligence, or the actions, inactions, or negligence of Grace Santos.<br><br>
+      I voluntarily elect to participate in Pilates sessions with Grace Santos. I acknowledge that I am in good physical health, have no medical condition that would prevent my participation, and that I have consulted with a healthcare provider if necessary. I agree to inform Grace of any changes to my health status before each session.<br><br>
+      <strong>Instructor in Training</strong><br><br>
+      I understand and accept that Grace Santos is a Pilates instructor currently completing her certification training. I acknowledge that she is developing her professional skills and may refine her instruction approach over time.<br><br>
+      <strong>Release of Liability</strong><br><br>
+      In consideration of being allowed to participate in Pilates sessions, I hereby release, waive, discharge, and covenant not to sue Grace Santos from any and all claims, demands, actions, or causes of action of any kind, including those for personal injury, death, property damage, or loss, arising out of or related to my participation. This release includes claims arising from the negligence of Grace Santos.<br><br>
+      <strong>Indemnification</strong><br><br>
+      I agree to indemnify and hold harmless Grace Santos from any and all claims, actions, or demands brought by any third party, including attorneys' fees, resulting from my participation in Pilates sessions, whether resulting from negligence or any other cause.<br><br>
+      <strong>Medical Consent</strong><br><br>
+      In the event of an emergency, I authorize Grace Santos to seek medical attention on my behalf if I am unable to provide consent at the time of the emergency. I understand that I am responsible for all costs related to any medical treatment and transportation.<br><br>
+      <strong>Acknowledgment</strong><br><br>
+      I have read this liability waiver and fully understand its terms. I acknowledge that I am signing freely and voluntarily and intend my agreement to be a complete and unconditional release of all liability to the greatest extent allowed by law.
+    </div>
+    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px;">
+      <input type="checkbox" id="waiverModalCheck" style="margin-top:3px;flex-shrink:0;">
+      <span style="font-size:13px;">I have read and agree to the Liability Waiver &amp; Health Acknowledgment above.</span>
+    </label>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button type="button" class="secondary" onclick="closeWaiverModal()">Cancel</button>
+      <button type="button" class="primary" onclick="confirmWaiver()">Agree &amp; Sign</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-backdrop" id="modalBackdrop">
@@ -841,6 +877,55 @@ function selectSlotTime(t){
   renderSlotPicker();
 }
 
+// ---------- waiver ----------
+let waiverSignedThisSession = false;
+
+function updateWaiverStatus(){
+  const contact=(document.getElementById('r_contact')?.value||'').trim().toLowerCase();
+  const statusEl=document.getElementById('waiverStatus');
+  if(!statusEl) return;
+  if(contact){
+    const confirmed=allRequests.filter(r=>r.status==='confirmed'&&(r.clientContact||'').toLowerCase()===contact);
+    if(confirmed.length>0){
+      confirmed.sort((a,b)=>a.date.localeCompare(b.date));
+      const firstDate=formatDate(confirmed[0].date);
+      statusEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#edf7f0;border:1px solid #a8d5b5;border-radius:10px;font-size:13px;color:#2d6a4f;">'+
+        '<span style="font-size:16px;">&#10003;</span><span>Waiver on file &mdash; first confirmed class '+firstDate+'</span></div>';
+      waiverSignedThisSession=true;
+      return;
+    }
+  }
+  if(waiverSignedThisSession){
+    statusEl.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#edf7f0;border:1px solid #a8d5b5;border-radius:10px;font-size:13px;color:#2d6a4f;">'+
+      '<span style="font-size:16px;">&#10003;</span><span>Waiver signed</span></div>';
+  } else {
+    statusEl.innerHTML='<button type="button" class="secondary" onclick="openWaiverModal()" style="width:100%;">Sign Waiver (required)</button>';
+  }
+}
+
+function openWaiverModal(){
+  document.getElementById('waiverModalCheck').checked=false;
+  document.getElementById('waiverModal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function closeWaiverModal(){
+  document.getElementById('waiverModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function confirmWaiver(){
+  if(!document.getElementById('waiverModalCheck').checked){
+    alert('Please check the box to agree to the waiver.');
+    return;
+  }
+  waiverSignedThisSession=true;
+  closeWaiverModal();
+  updateWaiverStatus();
+}
+
+document.getElementById('r_contact').addEventListener('input', updateWaiverStatus);
+
 // ---------- request form ----------
 document.getElementById('requestForm').addEventListener('submit',function(e){
   e.preventDefault();
@@ -848,6 +933,7 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
   const equipment=Array.from(document.querySelectorAll('#r_equipment_group input:checked')).map(i=>i.value);
   if(equipment.length===0){ alert('Please select at least one equipment type.'); return; }
   if(equipment.length>2){ alert('Please select up to 2 pieces of equipment.'); return; }
+  if(!waiverSignedThisSession){ alert('Please sign the waiver before submitting.'); return; }
   if(classType==='jumpboard'&&!equipment.includes('reformer')){ alert('Jumpboard classes require the Reformer. Please select Reformer under equipment.'); return; }
   const dateVal=document.getElementById('r_date').value;
   const timeVal=document.getElementById('r_time').value;
@@ -868,16 +954,19 @@ document.getElementById('requestForm').addEventListener('submit',function(e){
     classType,
     format:document.querySelector('#r_format_group input:checked').value,
     equipment, notes:document.getElementById('r_notes').value.trim(),
+    waiverAgreed:true, waiverDate:new Date().toISOString(),
     status:'pending', createdAt:new Date().toISOString()
   };
   requestsCollection.add(req).then(function(){
     form.reset();
+    waiverSignedThisSession=false;
     selectedDate=null; selectedTime=null;
     document.getElementById('r_date').value='';
     document.getElementById('r_time').value='';
     document.getElementById('r_slot_display').textContent='';
     slotCalOffset=0;
     document.querySelectorAll('.pill').forEach(l=>l.classList.toggle('checked',l.querySelector('input').checked));
+    updateWaiverStatus();
     renderSlotPicker();
     const msg=document.getElementById('confirmMsg');
     msg.style.display='block';
@@ -1288,6 +1377,7 @@ function renderCalendar(){
 // init
 startSync();
 startAvailSync();
+updateWaiverStatus();
 </script>
 </body>
 </html>
