@@ -241,6 +241,7 @@
         <h2 style="margin:0;">Requests</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="secondary small" onclick="openManualAdd()">+ Add Request Manually</button>
+          <button class="secondary small" onclick="openExportModal()">Export Schedule</button>
           <button class="secondary small" onclick="lockDashboard()">Lock Dashboard</button>
         </div>
       </div>
@@ -349,6 +350,37 @@
       <button type="button" class="secondary" onclick="closeWaiverModal()">Cancel</button>
       <button type="button" class="primary" onclick="confirmWaiver()">Agree &amp; Sign</button>
     </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div id="exportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;overflow-y:auto;" onclick="if(event.target===this)closeExportModal();">
+  <div style="background:#fff;border-radius:14px;max-width:540px;margin:32px auto;padding:28px 24px;box-shadow:0 8px 40px rgba(0,0,0,0.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">Export Schedule</h3>
+      <button type="button" class="secondary small" onclick="closeExportModal()">Close</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <label style="font-size:13px;font-weight:600;align-self:center;">Show next</label>
+      <select id="exportDays" onchange="renderExportText()" style="padding:5px 8px;font-size:13px;border:1px solid var(--line);border-radius:6px;">
+        <option value="7">7 days</option>
+        <option value="14" selected>14 days</option>
+        <option value="30">30 days</option>
+        <option value="60">60 days</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:5px;font-size:13px;margin-left:8px;">
+        <input type="checkbox" id="exportIncludeAvail" checked onchange="renderExportText()"> Open slots
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:13px;">
+        <input type="checkbox" id="exportIncludeConfirmed" checked onchange="renderExportText()"> Confirmed
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:13px;">
+        <input type="checkbox" id="exportContinuous" onchange="renderExportText()"> Continuous hours
+      </label>
+    </div>
+    <textarea id="exportText" readonly rows="16" style="width:100%;font-size:13px;font-family:monospace;border:1px solid var(--line);border-radius:8px;padding:12px;background:#fafafa;resize:vertical;box-sizing:border-box;"></textarea>
+    <button type="button" class="primary" style="margin-top:12px;width:100%;" onclick="copyExportText()">Copy to Clipboard</button>
+    <div id="exportCopyStatus" style="text-align:center;font-size:13px;color:var(--confirmed);margin-top:6px;height:18px;"></div>
   </div>
 </div>
 
@@ -1268,6 +1300,128 @@ function deleteRequest(id){
 }
 
 // ---------- modal ----------
+// ---------- export schedule ----------
+function formatSlotList(slots, continuous){
+  if(!continuous) return slots.map(t=>formatTime(t)).join(', ');
+  // group consecutive slots (gap ≤ 60 min between start times)
+  const mins=slots.map(t=>{ const [h,m]=t.split(':').map(Number); return h*60+m; });
+  const groups=[];
+  let start=mins[0], prev=mins[0];
+  for(let i=1;i<mins.length;i++){
+    if(mins[i]-prev<=60){ prev=mins[i]; }
+    else { groups.push([start,prev]); start=mins[i]; prev=mins[i]; }
+  }
+  groups.push([start,prev]);
+  return groups.map(([s,e])=>{
+    const fmtShort=(m)=>{
+      const h=Math.floor(m/60), mn=m%60, ampm=h>=12?'PM':'AM';
+      const h12=h%12||12;
+      return mn===0?h12+' '+ampm:h12+':'+(mn<10?'0':'')+mn+' '+ampm;
+    };
+    const startAmpm=s>=720?'PM':'AM', endAmpm=e>=720?'PM':'AM';
+    if(s===e) return fmtShort(s);
+    // if same period, omit AM/PM on the first part
+    if(startAmpm===endAmpm){
+      const h=Math.floor(s/60), mn=s%60, h12=h%12||12;
+      const startStr=mn===0?String(h12):h12+':'+(mn<10?'0':'')+mn;
+      return startStr+' – '+fmtShort(e);
+    }
+    return fmtShort(s)+' – '+fmtShort(e);
+  }).join(', ');
+}
+function openExportModal(){
+  document.getElementById('exportModal').style.display='block';
+  document.body.style.overflow='hidden';
+  renderExportText();
+}
+
+function closeExportModal(){
+  document.getElementById('exportModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function renderExportText(){
+  const days=parseInt(document.getElementById('exportDays').value)||14;
+  const inclAvail=document.getElementById('exportIncludeAvail').checked;
+  const inclConf=document.getElementById('exportIncludeConfirmed').checked;
+  const continuous=document.getElementById('exportContinuous').checked;
+
+  const today=new Date(); today.setHours(0,0,0,0);
+  const cutoff=new Date(today); cutoff.setDate(cutoff.getDate()+days);
+  const todayStr=today.toISOString().slice(0,10);
+  const cutoffStr=cutoff.toISOString().slice(0,10);
+
+  // Collect all relevant dates in range
+  const dateSet=new Set();
+  if(inclAvail){
+    Object.keys(availSettings.dates||{}).forEach(ds=>{ if(ds>=todayStr&&ds<cutoffStr) dateSet.add(ds); });
+  }
+  const confirmed=allRequests.filter(r=>r.status==='confirmed'&&r.date>=todayStr&&r.date<cutoffStr);
+  if(inclConf) confirmed.forEach(r=>dateSet.add(r.date));
+
+  const sortedDates=[...dateSet].sort();
+  if(sortedDates.length===0){
+    document.getElementById('exportText').value='No availability or confirmed sessions in the next '+days+' days.';
+    return;
+  }
+
+  const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const lines=[];
+
+  sortedDates.forEach(ds=>{
+    const [y,m,d]=ds.split('-').map(Number);
+    const dateObj=new Date(y,m-1,d);
+    const label=DOW[dateObj.getDay()]+', '+MONTH_NAMES[m-1]+' '+d;
+    const dayLines=[];
+
+    if(inclAvail){
+      const slots=(availSettings.dates||{})[ds];
+      if(Array.isArray(slots)&&slots.length>0){
+        const confirmedForDay=allRequests.filter(r=>r.status==='confirmed'&&r.date===ds);
+        const open=slots.filter(t=>{
+          const [h,mn]=t.split(':').map(Number);
+          const start=h*60+mn, end=start+SESSION_DURATION;
+          return !confirmedForDay.some(r=>{const rs=getStartMinutes(r),re=rs+SESSION_DURATION;return start<re&&rs<end;});
+        });
+        if(open.length>0){
+          dayLines.push('  Open: '+formatSlotList(open,continuous));
+        }
+      }
+    }
+
+    if(inclConf){
+      const dayConf=confirmed.filter(r=>r.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
+      dayConf.forEach(r=>{
+        const fmt=r.format==='online'?'Online':'In Person';
+        dayLines.push('  ✓ '+formatTime(r.time)+' — '+r.clientName+' ('+fmt+')');
+      });
+    }
+
+    if(dayLines.length>0){
+      lines.push(label);
+      lines.push(...dayLines);
+      lines.push('');
+    }
+  });
+
+  document.getElementById('exportText').value=lines.join('\n').trimEnd();
+}
+
+function copyExportText(){
+  const ta=document.getElementById('exportText');
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const st=document.getElementById('exportCopyStatus');
+    st.textContent='Copied!';
+    setTimeout(()=>st.textContent='',2500);
+  }).catch(()=>{
+    document.execCommand('copy');
+    const st=document.getElementById('exportCopyStatus');
+    st.textContent='Copied!';
+    setTimeout(()=>st.textContent='',2500);
+  });
+}
+
 function openManualAdd(){
   document.getElementById('modalTitle').textContent='Add Request';
   document.getElementById('manualForm').reset();
