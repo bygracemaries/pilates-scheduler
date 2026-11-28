@@ -1309,9 +1309,9 @@ function formatSlotList(slots, continuous){
   let start=mins[0], prev=mins[0];
   for(let i=1;i<mins.length;i++){
     if(mins[i]-prev<=60){ prev=mins[i]; }
-    else { groups.push([start,prev]); start=mins[i]; prev=mins[i]; }
+    else { groups.push([start,prev+60]); start=mins[i]; prev=mins[i]; }
   }
-  groups.push([start,prev]);
+  groups.push([start,prev+60]);
   return groups.map(([s,e])=>{
     const fmtShort=(m)=>{
       const h=Math.floor(m/60), mn=m%60, ampm=h>=12?'PM':'AM';
