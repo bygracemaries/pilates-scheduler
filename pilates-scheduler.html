@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="icon.png">
 <style>
   :root{
+    /* ---- DEFAULT PALETTE (restore after holidays) ----
     --sage:#B9D3E9;
     --sage-dark:#3F6483;
     --cream:#faf6f1;
@@ -19,6 +20,18 @@
     --line:#e3ddd3;
     --pending:#d8a948;
     --confirmed:#6a9c7a;
+    --declined:#c46a6a;
+    ---- END DEFAULT PALETTE ---- */
+
+    /* ---- HOLIDAY PALETTE ---- */
+    --sage:#7d1f2e;
+    --sage-dark:#4a0f1a;
+    --cream:#fdf5f5;
+    --ink:#2e1a1a;
+    --muted:#8a7070;
+    --line:#e8d5d5;
+    --pending:#c47c2a;
+    --confirmed:#5a8a5a;
     --declined:#c46a6a;
   }
   *{box-sizing:border-box;}
@@ -1639,6 +1652,56 @@ function renderCalendar(){
 startSync();
 startAvailSync();
 updateWaiverStatus();
+</script>
+
+<!-- ❄️ SNOW -->
+<canvas id="snowCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:99998;"></canvas>
+<script>
+(function(){
+  const canvas=document.getElementById('snowCanvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,flakes=[];
+  const COUNT=120;
+
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  window.addEventListener('resize',resize); resize();
+
+  function rand(a,b){ return a+Math.random()*(b-a); }
+
+  function makeFlake(){
+    return {
+      x:rand(0,W), y:rand(-H,0),
+      r:rand(2,5.5),
+      speed:rand(0.6,2.2),
+      drift:rand(-0.3,0.3),
+      opacity:rand(0.5,0.95),
+      wobble:rand(0,Math.PI*2),
+      wobbleSpeed:rand(0.01,0.03)
+    };
+  }
+
+  for(let i=0;i<COUNT;i++) flakes.push(makeFlake());
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    flakes.forEach(f=>{
+      ctx.beginPath();
+      ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+f.opacity+')';
+      ctx.fill();
+
+      f.y+=f.speed;
+      f.wobble+=f.wobbleSpeed;
+      f.x+=f.drift+Math.sin(f.wobble)*0.4;
+
+      if(f.y>H+10||f.x<-10||f.x>W+10){
+        Object.assign(f,makeFlake(),{y:rand(-20,0),x:rand(0,W)});
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 </script>
 </body>
 </html>
