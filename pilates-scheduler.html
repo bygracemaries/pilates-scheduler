@@ -37,8 +37,11 @@
   *{box-sizing:border-box;}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--cream);color:var(--ink);}
   header{background:var(--sage);color:#fff;padding:24px 28px 0;}
-  header h1{margin:0 0 4px;font-size:22px;font-weight:600;}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;}
+  header h1{margin:0;font-size:22px;font-weight:600;}
   header p{margin:0 0 18px;font-size:13px;opacity:.9;}
+  #instructorLoginBtn{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;white-space:nowrap;}
+  #instructorLoginBtn:hover{background:rgba(255,255,255,0.28);}
   nav{display:flex;gap:4px;}
   nav button{background:rgba(255,255,255,.15);border:none;color:#fff;padding:10px 20px;font-size:14px;cursor:pointer;border-radius:8px 8px 0 0;opacity:.75;}
   nav button.active{background:var(--cream);color:var(--sage-dark);opacity:1;font-weight:600;}
@@ -121,11 +124,16 @@
 <body>
 
 <header>
-  <h1>Pilates Session Scheduler</h1>
-  <p>Request sessions and track confirmed bookings &amp; practice hours.</p>
+  <div class="header-top">
+    <div>
+      <h1>Grace Pilates</h1>
+      <p>Book your class below!</p>
+    </div>
+    <button id="instructorLoginBtn" onclick="instructorLogin()">Instructor Login</button>
+  </div>
   <nav>
     <button id="tab-request" class="active" onclick="showView('request')">Request a Session</button>
-    <button id="tab-dashboard" onclick="showView('dashboard')">Dashboard</button>
+    <button id="tab-dashboard" onclick="showView('dashboard')" style="display:none;">Dashboard</button>
     <button id="tab-calendar" onclick="showView('calendar')" style="display:none;">Calendar</button>
     <button id="tab-clients" onclick="showView('clients')" style="display:none;">Clients</button>
   </nav>
@@ -509,10 +517,26 @@ let availSelectedDate = null; // date selected in avail editor
 
 // ---------- auth ----------
 function isDashboardUnlocked(){ return sessionStorage.getItem('dashboardUnlocked')==='true'; }
+
+function instructorLogin(){
+  if(isDashboardUnlocked()){ showView('dashboard'); return; }
+  const entered=prompt('Enter your instructor PIN:');
+  if(entered===null) return;
+  if(entered!==DASHBOARD_PIN){ alert('Incorrect PIN.'); return; }
+  sessionStorage.setItem('dashboardUnlocked','true');
+  document.getElementById('tab-dashboard').style.display='';
+  document.getElementById('tab-calendar').style.display='';
+  document.getElementById('tab-clients').style.display='';
+  document.getElementById('instructorLoginBtn').textContent='Dashboard';
+  showView('dashboard');
+}
+
 function lockDashboard(){
   sessionStorage.removeItem('dashboardUnlocked');
+  document.getElementById('tab-dashboard').style.display='none';
   document.getElementById('tab-calendar').style.display='none';
   document.getElementById('tab-clients').style.display='none';
+  document.getElementById('instructorLoginBtn').textContent='Instructor Login';
   showView('request');
 }
 
@@ -589,17 +613,13 @@ document.querySelectorAll('.pill').forEach(label=>{
 // ---------- view switching ----------
 function showView(name){
   if((name==='dashboard'||name==='calendar'||name==='clients')&&!isDashboardUnlocked()){
-    const entered=prompt('Enter your dashboard PIN:');
-    if(entered===null) return;
-    if(entered!==DASHBOARD_PIN){ alert('Incorrect PIN.'); return; }
-    sessionStorage.setItem('dashboardUnlocked','true');
-    document.getElementById('tab-calendar').style.display='';
-    document.getElementById('tab-clients').style.display='';
+    instructorLogin(); return;
   }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  const tab=document.getElementById('tab-'+name);
+  if(tab) tab.classList.add('active');
   if(name==='dashboard') renderDashboard();
   if(name==='calendar') renderCalendar();
   if(name==='clients') renderClients();
